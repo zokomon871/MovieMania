@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  streamhub-mongodb:
+    image: mongo:4.4
+    container_name: streamhub-mongo
+    restart: always
+    ports:
+      - "27019:27017"
+    environment:
+      MONGO_INITDB_DATABASE: streamhub
+    volumes:
+      - streamhub_mongo_data:/data/db
+
+  streamhub-redis:
+    image: redis:7-alpine
+    container_name: streamhub-redis
+    restart: always
+    ports:
+      - "6389:6379"
+    volumes:
+      - streamhub_redis_data:/data
+
+volumes:
+  streamhub_mongo_data:
+  streamhub_redis_data:
