@@ -28,6 +28,9 @@ interface VideoPlayerProps {
   onToggleFavorite?: (id: string, e: React.MouseEvent) => void;
   playlistChannels?: IChannel[];
   onSelectChannel?: (channel: IChannel) => void;
+  offlineChannels?: string[];
+  onChannelOffline?: (id: string) => void;
+  onChannelOnline?: (id: string) => void;
 }
 
 interface QualityLevel {
@@ -44,6 +47,9 @@ export default function VideoPlayer({
   onToggleFavorite,
   playlistChannels = [],
   onSelectChannel,
+  offlineChannels = [],
+  onChannelOffline,
+  onChannelOnline,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -111,6 +117,7 @@ export default function VideoPlayer({
         } else {
           setStreamError('Broadcaster server is sending empty or silent stream packets. This channel feed is temporarily offline at source.');
           setIsBuffering(false);
+          if (channel?.id) onChannelOffline?.(channel.id);
         }
       }
     }, 6500);
@@ -145,6 +152,7 @@ export default function VideoPlayer({
         // Real video fragments arrived
         if (playbackWatchdogRef.current) clearTimeout(playbackWatchdogRef.current);
         setIsBuffering(false);
+        if (channel?.id) onChannelOnline?.(channel.id);
       });
 
       hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
@@ -168,6 +176,7 @@ export default function VideoPlayer({
               } else {
                 setStreamError('Broadcaster server is offline or returned HTTP 502/504 error.');
                 setIsBuffering(false);
+                if (channel?.id) onChannelOffline?.(channel.id);
                 hls.destroy();
               }
               break;
@@ -182,6 +191,7 @@ export default function VideoPlayer({
               } else {
                 setStreamError('Broadcast feed is currently unreachable at source.');
                 setIsBuffering(false);
+                if (channel?.id) onChannelOffline?.(channel.id);
                 hls.destroy();
               }
               break;
@@ -193,6 +203,7 @@ export default function VideoPlayer({
       video.addEventListener('playing', () => {
         if (playbackWatchdogRef.current) clearTimeout(playbackWatchdogRef.current);
         setIsBuffering(false);
+        if (channel?.id) onChannelOnline?.(channel.id);
       });
       video.addEventListener('error', () => {
         if (playbackWatchdogRef.current) clearTimeout(playbackWatchdogRef.current);
@@ -204,13 +215,15 @@ export default function VideoPlayer({
         } else {
           setStreamError('Broadcast stream failed to load.');
           setIsBuffering(false);
+          if (channel?.id) onChannelOffline?.(channel.id);
         }
       });
     } else {
       setStreamError('Your browser does not support HLS live streaming.');
       setIsBuffering(false);
+      if (channel?.id) onChannelOffline?.(channel.id);
     }
-  }, [currentStreamIndex, streams.length]);
+  }, [currentStreamIndex, streams.length, channel?.id, onChannelOffline, onChannelOnline]);
 
   useEffect(() => {
     if (currentStream?.url) {
@@ -371,11 +384,15 @@ export default function VideoPlayer({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: 'rgba(255,255,255,0.75)' }}>
                     {channel.country && <span>🏳️ {channel.country}</span>}
                     {channel.categories && channel.categories[0] && <span>• {channel.categories[0]}</span>}
-                    {usingProxy && (
+                    {streamError || offlineChannels.includes(channel.id) ? (
+                      <span className="badge badge-offline" style={{ fontSize: '0.68rem', padding: '1px 6px' }}>
+                        <span className="pulse-dot-red" /> NOT WORKING
+                      </span>
+                    ) : usingProxy ? (
                       <span className="badge" style={{ background: 'rgba(0,229,255,0.15)', color: '#38bdf8', fontSize: '0.68rem', padding: '1px 6px' }}>
                         PROXY ON
                       </span>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -527,11 +544,12 @@ export default function VideoPlayer({
             <div className="player-drawer-list">
               {playlistChannels.slice(0, 40).map((ch) => {
                 const isActive = ch.id === channel.id;
+                const isChOffline = offlineChannels.includes(ch.id) || !ch.streams || ch.streams.length === 0 || ch.streams.every((s) => s.status === 'offline' || s.status === 'error');
                 return (
                   <div
                     key={ch.id}
                     onClick={() => onSelectChannel && onSelectChannel(ch)}
-                    className={`player-drawer-item ${isActive ? 'active' : ''}`}
+                    className={`player-drawer-item ${isActive ? 'active' : ''} ${isChOffline ? 'offline' : ''}`}
                   >
                     <div
                       style={{
@@ -555,8 +573,18 @@ export default function VideoPlayer({
                     </div>
 
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.88rem', fontWeight: 600, color: isActive ? 'var(--accent-red)' : '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {ch.name}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.88rem', fontWeight: 600, color: isActive ? 'var(--accent-red)' : '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {ch.name}
+                        </span>
+                        {isChOffline && (
+                          <span
+                            className="badge badge-offline"
+                            style={{ fontSize: '0.6rem', padding: '1px 5px', flexShrink: 0, letterSpacing: '0.01em' }}
+                          >
+                            NOT WORKING
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                         {ch.country ? `🏳️ ${ch.country}` : 'Global'} {ch.categories?.[0] ? `• ${ch.categories[0]}` : ''}

@@ -389,13 +389,21 @@ body {
   border: 1px solid var(--border-subtle);
 }
 
-.pulse-dot {
+.badge-offline {
+  background: rgba(239, 68, 68, 0.18);
+  color: #ff6b6b;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
+.pulse-dot-red {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #ff202e;
-  box-shadow: 0 0 8px #ff202e;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
   animation: pulse-animation 1.5s infinite;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 @keyframes pulse-animation {
@@ -502,6 +510,7 @@ body {
   margin-bottom: 24px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);

@@ -11,6 +11,7 @@ interface ChannelRowProps {
   channels: IChannel[];
   selectedChannelId?: string;
   favorites: string[];
+  offlineChannels?: string[];
   onSelectChannel: (channel: IChannel) => void;
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
 }
@@ -21,6 +22,7 @@ export default function ChannelRow({
   channels,
   selectedChannelId,
   favorites,
+  offlineChannels = [],
   onSelectChannel,
   onToggleFavorite,
 }: ChannelRowProps) {
@@ -92,6 +94,7 @@ export default function ChannelRow({
             channel={channel}
             isSelected={selectedChannelId === channel.id}
             isFavorite={favorites.includes(channel.id)}
+            isOffline={offlineChannels.includes(channel.id)}
             onSelect={onSelectChannel}
             onToggleFavorite={onToggleFavorite}
           />

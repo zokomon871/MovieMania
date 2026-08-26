@@ -28,6 +28,7 @@ export default function HomePage() {
   const [countries, setCountries] = useState<ICountry[]>([]);
   const [selectedChannel, setSelectedChannel] = useState<IChannel | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [offlineChannels, setOfflineChannels] = useState<string[]>([]);
 
   // Category Row Specific Channels
   const [sportsChannels, setSportsChannels] = useState<IChannel[]>([]);
@@ -49,11 +50,13 @@ export default function HomePage() {
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
 
-  // Load Favorites from LocalStorage on mount
+  // Load Favorites and Offline Channels from LocalStorage on mount
   useEffect(() => {
     try {
       const savedFavs = localStorage.getItem('streamhub_favorites');
       if (savedFavs) setFavorites(JSON.parse(savedFavs));
+      const savedOffline = localStorage.getItem('streamhub_offline_channels');
+      if (savedOffline) setOfflineChannels(JSON.parse(savedOffline));
     } catch (e) {
       console.warn('Failed to load localStorage items:', e);
     }
@@ -74,6 +77,34 @@ export default function HomePage() {
       return next;
     });
   };
+
+  // Register a channel as offline when stream fails
+  const handleChannelOffline = useCallback((channelId: string) => {
+    setOfflineChannels((prev) => {
+      if (prev.includes(channelId)) return prev;
+      const next = [...prev, channelId];
+      try {
+        localStorage.setItem('streamhub_offline_channels', JSON.stringify(next));
+      } catch (err) {
+        console.error(err);
+      }
+      return next;
+    });
+  }, []);
+
+  // Register a channel as online when stream successfully loads
+  const handleChannelOnline = useCallback((channelId: string) => {
+    setOfflineChannels((prev) => {
+      if (!prev.includes(channelId)) return prev;
+      const next = prev.filter((id) => id !== channelId);
+      try {
+        localStorage.setItem('streamhub_offline_channels', JSON.stringify(next));
+      } catch (err) {
+        console.error(err);
+      }
+      return next;
+    });
+  }, []);
 
   // Select Channel and smoothly scroll to video player
   const handleSelectChannel = (channel: IChannel) => {
@@ -100,7 +131,15 @@ export default function HomePage() {
     fetch(url)
       .then((r) => r.json())
       .then((data) => {
-        if (data.categories) setCategories(data.categories);
+        if (data.categories) {
+          setCategories(data.categories);
+          // If the active category does not exist in the selected country, reset to 'all'
+          setSelectedCategory((prev) => {
+            if (prev === 'all') return 'all';
+            const exists = data.categories.some((c: ICategory) => c.id === prev);
+            return exists ? prev : 'all';
+          });
+        }
       })
       .catch(console.warn);
   }, [selectedCountry]);
@@ -259,6 +298,9 @@ export default function HomePage() {
             onClose={() => setSelectedChannel(null)}
             playlistChannels={channels}
             onSelectChannel={handleSelectChannel}
+            offlineChannels={offlineChannels}
+            onChannelOffline={handleChannelOffline}
+            onChannelOnline={handleChannelOnline}
           />
         ) : (
           /* Hero Billboard shown when player is inactive */
@@ -282,6 +324,7 @@ export default function HomePage() {
                 icon={<Flame size={24} color="var(--accent-red)" />}
                 channels={channels.slice(0, 16)}
                 favorites={favorites}
+                offlineChannels={offlineChannels}
                 onSelectChannel={handleSelectChannel}
                 onToggleFavorite={toggleFavorite}
               />
@@ -294,6 +337,7 @@ export default function HomePage() {
                 icon={<Trophy size={24} color="#38bdf8" />}
                 channels={sportsChannels}
                 favorites={favorites}
+                offlineChannels={offlineChannels}
                 onSelectChannel={handleSelectChannel}
                 onToggleFavorite={toggleFavorite}
               />
@@ -306,6 +350,7 @@ export default function HomePage() {
                 icon={<Newspaper size={24} color="#f59e0b" />}
                 channels={newsChannels}
                 favorites={favorites}
+                offlineChannels={offlineChannels}
                 onSelectChannel={handleSelectChannel}
                 onToggleFavorite={toggleFavorite}
               />
@@ -318,6 +363,7 @@ export default function HomePage() {
                 icon={<Film size={24} color="#ec4899" />}
                 channels={movieChannels}
                 favorites={favorites}
+                offlineChannels={offlineChannels}
                 onSelectChannel={handleSelectChannel}
                 onToggleFavorite={toggleFavorite}
               />
@@ -330,6 +376,7 @@ export default function HomePage() {
                 icon={<Tv size={24} color="#10b981" />}
                 channels={animationChannels}
                 favorites={favorites}
+                offlineChannels={offlineChannels}
                 onSelectChannel={handleSelectChannel}
                 onToggleFavorite={toggleFavorite}
               />
@@ -389,6 +436,7 @@ export default function HomePage() {
                 channel={channel}
                 isSelected={selectedChannel?.id === channel.id}
                 isFavorite={favorites.includes(channel.id)}
+                isOffline={offlineChannels.includes(channel.id)}
                 onSelect={handleSelectChannel}
                 onToggleFavorite={toggleFavorite}
                 isGridView

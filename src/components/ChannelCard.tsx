@@ -8,6 +8,7 @@ interface ChannelCardProps {
   channel: IChannel;
   isSelected?: boolean;
   isFavorite?: boolean;
+  isOffline?: boolean;
   onSelect: (channel: IChannel) => void;
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
   isGridView?: boolean;
@@ -17,19 +18,21 @@ export default function ChannelCard({
   channel,
   isSelected = false,
   isFavorite = false,
+  isOffline = false,
   onSelect,
   onToggleFavorite,
   isGridView = false,
 }: ChannelCardProps) {
   const [imgError, setImgError] = useState(false);
   const streamCount = channel.streams?.length || 0;
-  const bestQuality = channel.streams?.find((s) => s.quality)?.quality || (streamCount > 0 ? 'HD' : 'OFFLINE');
+  const effectiveIsOffline = isOffline || streamCount === 0 || channel.streams?.every((s) => s.status === 'offline' || s.status === 'error');
+  const bestQuality = effectiveIsOffline ? 'OFFLINE' : (channel.streams?.find((s) => s.quality)?.quality || (streamCount > 0 ? 'HD' : 'OFFLINE'));
   const primaryCategory = channel.categories?.[0] || 'General';
   const isVerified = channel.is_verified ?? true;
 
   return (
     <div
-      className={`channel-card ${isGridView ? 'channel-card-grid' : ''} ${isSelected ? 'playing' : ''}`}
+      className={`channel-card ${isGridView ? 'channel-card-grid' : ''} ${isSelected ? 'playing' : ''} ${effectiveIsOffline ? 'offline' : ''}`}
       onClick={() => onSelect(channel)}
     >
       {/* Play Hover Overlay Bubble */}
@@ -79,8 +82,16 @@ export default function ChannelCard({
       {/* Card Footer: Badges */}
       <div className="card-bottom">
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {/* Status Badge: Verified vs Community Feed */}
-          {isVerified ? (
+          {/* Status Badge: Offline / Not Working vs Verified vs Community */}
+          {effectiveIsOffline ? (
+            <span
+              className="badge badge-offline"
+              title="Broadcast feed is offline or not working"
+            >
+              <span className="pulse-dot-red" />
+              NOT WORKING
+            </span>
+          ) : isVerified ? (
             <span
               className="badge"
               style={{

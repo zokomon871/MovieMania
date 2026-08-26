@@ -55,8 +55,9 @@ export default function FilterBar({
   }, []);
 
   // Merge full country list
+  const globalTotalChannels = countries.reduce((acc, c) => acc + (c.count || 0), 0) || totalChannels;
   const fullCountryList = [
-    { code: 'ALL', name: 'All Countries (Global)', flag: '🌐', count: totalChannels },
+    { code: 'ALL', name: 'All Countries (Global)', flag: '🌐', count: globalTotalChannels },
     ...countries.map((c) => ({
       code: c.code,
       name: c.name,
@@ -87,6 +88,11 @@ export default function FilterBar({
           className={`category-pill ${selectedCategory === 'all' ? 'active' : ''}`}
         >
           <span>🔥</span> All Channels
+          {activeCountryObj.count !== undefined && activeCountryObj.count > 0 && (
+            <span style={{ opacity: 0.7, fontSize: '0.75rem', marginLeft: '4px' }}>
+              ({activeCountryObj.count.toLocaleString()})
+            </span>
+          )}
         </button>
 
         {categories.map((cat) => {
@@ -100,8 +106,8 @@ export default function FilterBar({
             >
               <span>{icon}</span> {cat.name}
               {cat.count !== undefined && cat.count > 0 && (
-                <span style={{ opacity: 0.7, fontSize: '0.75rem', marginLeft: '2px' }}>
-                  ({cat.count})
+                <span style={{ opacity: 0.7, fontSize: '0.75rem', marginLeft: '4px' }}>
+                  ({cat.count.toLocaleString()})
                 </span>
               )}
             </button>
@@ -287,8 +293,7 @@ export default function FilterBar({
           <Compass size={16} color="var(--accent-cyan)" />
           {hasActiveCountryFilter ? (
             <span>
-              Showing <strong style={{ color: '#fff' }}>{totalChannels}</strong> {activeCategoryObj?.name || ''} channels in <strong style={{ color: '#fff' }}>{activeCountryObj.name}</strong>
-              {activeCategoryObj?.count ? ` (of ${activeCategoryObj.count.toLocaleString()} Global)` : ''}
+              Showing <strong style={{ color: '#fff' }}>{totalChannels.toLocaleString()}</strong> {activeCategoryObj?.name || (selectedCategory === 'all' ? 'Live' : '')} channels in <strong style={{ color: '#fff' }}>{activeCountryObj.name}</strong>
             </span>
           ) : (
             <span>

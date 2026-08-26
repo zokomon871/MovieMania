@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
         .aggregate([
           {
             $match: {
-              country: country,
+              country: { $in: [country, country.toLowerCase(), country.toUpperCase()] },
               is_nsfw: false,
               'streams.0': { $exists: true },
             },

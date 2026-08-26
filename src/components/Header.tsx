@@ -113,9 +113,9 @@ export default function Header({
             <button
               onClick={() => {
                 if (showFavoritesOnly) onToggleFavoritesOnly();
-                onSelectCategory('animation');
+                onSelectCategory('kids');
               }}
-              className={`nav-link-btn ${!showFavoritesOnly && selectedCategory === 'animation' ? 'active' : ''}`}
+              className={`nav-link-btn ${!showFavoritesOnly && selectedCategory === 'kids' ? 'active' : ''}`}
             >
               <Tv size={15} />
               <span>Kids</span>
