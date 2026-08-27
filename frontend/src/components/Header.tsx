@@ -43,22 +43,7 @@ export default function Header({
     <header className="app-header">
       <div className="container">
         <div className="header-content">
-          {/* Logo Brand */}
-          <div
-            className="logo-brand"
-            onClick={() => {
-              onSearchChange('');
-              onSelectCategory('all');
-              if (showFavoritesOnly) onToggleFavoritesOnly();
-            }}
-          >
-            <div className="logo-icon-badge">
-              <Play size={18} fill="#fff" color="#fff" style={{ marginLeft: '2px' }} />
-            </div>
-            <div className="logo-text">
-              STREAM<span>HUB</span>
-            </div>
-          </div>
+          {/* Logo Brand Removed - Now in Navigation */}
 
           {/* Quick Nav Links (1Flex Style) */}
           <nav className="nav-links-menu" style={{ display: 'flex' }}>

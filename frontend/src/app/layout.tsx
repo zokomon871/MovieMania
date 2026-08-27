@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import '@/styles/globals.css';
+import Navigation from '@/components/Navigation';
 
 export const metadata: Metadata = {
   title: 'StreamHub - Stream 10,000+ Free Live TV Channels, Sports & Movies',
@@ -21,6 +22,7 @@ export default function RootLayout({
       </head>
       <body>
         <div className="bg-ambient-vignette" />
+        <Navigation />
         {children}
       </body>
     </html>

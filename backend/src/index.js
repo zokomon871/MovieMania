@@ -14,7 +14,8 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api', channelRoutes);
+app.use('/api/channels', require('./routes/channelRoutes'));
+app.use('/api/movies', require('./routes/movieRoutes'));
 
 // Database connection
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/streamhub';
