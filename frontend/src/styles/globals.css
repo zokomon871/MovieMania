@@ -877,7 +877,6 @@ body {
   z-index: 10;
 }
 
-.player-video-stage:hover .player-hud-overlay,
 .player-hud-overlay.visible {
   opacity: 1;
 }
@@ -945,6 +944,24 @@ body {
   height: 100%;
   max-height: 560px;
   overflow: hidden;
+}
+
+/* Fullscreen Overrides */
+.cinema-player-wrapper.fullscreen {
+  height: 100vh !important;
+  border-radius: 0;
+  border: none;
+}
+.cinema-player-wrapper.fullscreen .player-layout {
+  height: 100%;
+  grid-template-columns: 1fr;
+}
+.cinema-player-wrapper.fullscreen .player-video-stage {
+  height: 100%;
+  aspect-ratio: auto;
+}
+.cinema-player-wrapper.fullscreen .player-side-drawer {
+  display: none;
 }
 
 .player-drawer-header {

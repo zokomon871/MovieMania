@@ -11,7 +11,6 @@ import { IChannel, ICategory, ICountry } from '@/lib/types';
 import {
   Tv,
   Sparkles,
-  RefreshCw,
   ChevronLeft,
   ChevronRight,
   Flame,
@@ -47,8 +46,6 @@ export default function HomePage() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
-  const [syncNotice, setSyncNotice] = useState<string | null>(null);
 
   // Load Favorites and Offline Channels from LocalStorage on mount
   useEffect(() => {
@@ -226,27 +223,10 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, [searchQuery, selectedCategory, selectedCountry, showFavoritesOnly]);
 
-  // Trigger DB Sync Pipeline
-  const handleTriggerSync = async () => {
-    setIsSyncing(true);
-    setSyncNotice('Starting IPTV live database synchronization...');
-    try {
-      const res = await fetch('/api/sync', { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        setSyncNotice(`Sync complete! Ingested ${data.stats?.totalJoinedChannels?.toLocaleString() || 9979} live broadcast channels.`);
-        fetchChannels();
-        fetch('/api/categories').then((r) => r.json()).then((d) => setCategories(d.categories || []));
-        fetch('/api/countries').then((r) => r.json()).then((d) => setCountries(d.countries || []));
-      } else {
-        setSyncNotice('Sync failed: ' + (data.error || 'Unknown error'));
-      }
-    } catch (err: any) {
-      setSyncNotice('Sync failed: ' + err.message);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
+  // Fetch when page changes
+  useEffect(() => {
+    fetchChannels();
+  }, [page]);
 
   const isBrowsingAll = !showFavoritesOnly && !searchQuery && selectedCategory === 'all' && selectedCountry === 'ALL';
 
@@ -259,36 +239,11 @@ export default function HomePage() {
         showFavoritesOnly={showFavoritesOnly}
         onToggleFavoritesOnly={() => setShowFavoritesOnly(!showFavoritesOnly)}
         favoriteCount={favorites.length}
-        onTriggerSync={handleTriggerSync}
-        isSyncing={isSyncing}
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
       />
 
       <main className="container" style={{ flex: 1, padding: '28px 32px 60px' }}>
-        {/* Sync Status Notification Toast */}
-        {syncNotice && (
-          <div
-            className="glass-panel"
-            style={{
-              padding: '14px 22px',
-              marginBottom: '24px',
-              borderLeft: '4px solid var(--accent-red)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '12px',
-              fontSize: '0.92rem',
-              fontWeight: 600,
-            }}
-          >
-            <span>{syncNotice}</span>
-            <button className="btn btn-ghost" style={{ padding: '2px 8px' }} onClick={() => setSyncNotice(null)}>
-              ✕
-            </button>
-          </div>
-        )}
-
         {/* Video Player (Cinema Mode) */}
         {selectedChannel ? (
           <VideoPlayer
@@ -464,9 +419,6 @@ export default function HomePage() {
                 className="btn btn-secondary"
               >
                 Reset All Filters
-              </button>
-              <button onClick={handleTriggerSync} className="btn btn-primary">
-                <RefreshCw size={16} /> Sync IPTV Database
               </button>
             </div>
           </div>

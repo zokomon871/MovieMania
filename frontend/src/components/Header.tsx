@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, Play, Star, RefreshCw, HelpCircle, Film, Radio, Tv, Flame, Trophy, Newspaper } from 'lucide-react';
+import { Search, X, Play, Star, HelpCircle, Film, Radio, Tv, Flame, Trophy, Newspaper } from 'lucide-react';
 
 interface HeaderProps {
   searchQuery: string;
@@ -9,8 +9,6 @@ interface HeaderProps {
   showFavoritesOnly: boolean;
   onToggleFavoritesOnly: () => void;
   favoriteCount: number;
-  onTriggerSync: () => void;
-  isSyncing: boolean;
   selectedCategory: string;
   onSelectCategory: (cat: string) => void;
 }
@@ -21,8 +19,6 @@ export default function Header({
   showFavoritesOnly,
   onToggleFavoritesOnly,
   favoriteCount,
-  onTriggerSync,
-  isSyncing,
   selectedCategory,
   onSelectCategory,
 }: HeaderProps) {
@@ -157,18 +153,6 @@ export default function Header({
             >
               <Star size={15} fill={showFavoritesOnly ? 'var(--accent-gold)' : 'transparent'} color={showFavoritesOnly ? 'var(--accent-gold)' : 'currentColor'} />
               <span>Saved ({favoriteCount})</span>
-            </button>
-
-            {/* Sync Dataset from DB / IPTV-Org */}
-            <button
-              onClick={onTriggerSync}
-              disabled={isSyncing}
-              className="btn btn-ghost"
-              title="Sync latest live streams"
-              style={{ padding: '8px 14px' }}
-            >
-              <RefreshCw size={15} className={isSyncing ? 'animate-spin' : ''} />
-              <span style={{ display: 'none' }} className="sm:inline">{isSyncing ? 'Syncing...' : 'Sync'}</span>
             </button>
 
             {/* Keyboard Shortcuts Dialog Trigger */}

@@ -18,6 +18,7 @@ import {
   ListVideo,
   Radio,
   ExternalLink,
+  Crop,
 } from 'lucide-react';
 import { IChannel, IStream } from '@/lib/types';
 
@@ -68,6 +69,7 @@ export default function VideoPlayer({
   const [showDrawer, setShowDrawer] = useState<boolean>(true);
   const [showControls, setShowControls] = useState<boolean>(true);
   const [usingProxy, setUsingProxy] = useState<boolean>(false);
+  const [objectFit, setObjectFit] = useState<'contain' | 'cover' | 'fill'>('contain');
 
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const playbackWatchdogRef = useRef<NodeJS.Timeout | null>(null);
@@ -286,6 +288,14 @@ export default function VideoPlayer({
     setShowSettings(false);
   };
 
+  const handleToggleFit = () => {
+    setObjectFit((prev) => {
+      if (prev === 'contain') return 'cover';
+      if (prev === 'cover') return 'fill';
+      return 'contain';
+    });
+  };
+
   const handleUserActivity = () => {
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
@@ -299,16 +309,17 @@ export default function VideoPlayer({
   if (!channel) return null;
 
   return (
-    <div className="cinema-player-wrapper" ref={containerRef} onMouseMove={handleUserActivity}>
+    <div className={`cinema-player-wrapper ${isFullscreen ? 'fullscreen' : ''}`} ref={containerRef} onMouseMove={handleUserActivity}>
       <div className="player-halo-glow" />
 
       {/* Main Player Grid Layout */}
       <div className="player-layout">
         {/* Left: Video Stage */}
-        <div className="player-video-stage">
+        <div className="player-video-stage" style={{ cursor: showControls ? 'default' : 'none' }}>
           <video
             ref={videoRef}
             className="player-video-element"
+            style={{ objectFit }}
             playsInline
             onWaiting={() => setIsBuffering(true)}
             onPlaying={() => {
@@ -333,36 +344,40 @@ export default function VideoPlayer({
 
           {/* Stream Error / Offline Overlay */}
           {streamError && (
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(7, 7, 9, 0.94)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px', textAlign: 'center', zIndex: 6 }}>
-              <AlertCircle size={46} color="var(--accent-red)" style={{ marginBottom: '14px' }} />
-              <h4 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Broadcast Feed Offline</h4>
-              <p style={{ color: 'var(--text-secondary)', maxWidth: '460px', fontSize: '0.9rem', marginBottom: '20px', lineHeight: 1.5 }}>
-                {streamError}
+            <div className="glass-panel" style={{ position: 'absolute', inset: 0, background: 'rgba(7, 7, 9, 0.85)', backdropFilter: 'blur(8px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px', textAlign: 'center', zIndex: 6, borderRadius: '0' }}>
+              <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '16px', borderRadius: '50%', marginBottom: '20px' }}>
+                <AlertCircle size={40} color="var(--accent-red)" />
+              </div>
+              <h4 className="font-display" style={{ fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '10px' }}>Stream Currently Offline</h4>
+              <p style={{ color: 'var(--text-secondary)', maxWidth: '460px', fontSize: '0.95rem', marginBottom: '24px', lineHeight: 1.6 }}>
+                The broadcast feed for <strong>{channel.name}</strong> is currently unavailable or experiencing technical difficulties.
+                <br /><br />
+                <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Error detail: {streamError}</span>
               </p>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
                 <button
                   onClick={() => currentStream?.url && loadStream(currentStream.url, true)}
                   className="btn btn-primary"
                 >
-                  <RefreshCw size={15} /> Retry Stream
+                  <RefreshCw size={15} /> Retry Connection
                 </button>
                 {streams.length > 1 && (
                   <button
                     onClick={() => setCurrentStreamIndex((prev) => (prev + 1) % streams.length)}
                     className="btn btn-secondary"
                   >
-                    Switch to Feed #{((currentStreamIndex + 1) % streams.length) + 1}
+                    Try Alternative Feed
                   </button>
                 )}
                 {playlistChannels.length > 1 && (
                   <button
                     onClick={() => {
-                      const nextCh = playlistChannels.find((c) => c.id !== channel.id);
+                      const nextCh = playlistChannels.find((c) => c.id !== channel.id && !offlineChannels.includes(c.id));
                       if (nextCh && onSelectChannel) onSelectChannel(nextCh);
                     }}
                     className="btn btn-ghost"
                   >
-                    Try Next Channel
+                    Watch Something Else
                   </button>
                 )}
               </div>
@@ -518,6 +533,11 @@ export default function VideoPlayer({
                     </div>
                   )}
                 </div>
+
+                {/* Fit Toggle Button */}
+                <button onClick={handleToggleFit} className="player-icon-btn" title={`Video Fit: ${objectFit} (click to change)`}>
+                  <Crop size={18} />
+                </button>
 
                 {/* Fullscreen Button */}
                 <button onClick={handleToggleFullscreen} className="player-icon-btn" title="Toggle Fullscreen (F)">
