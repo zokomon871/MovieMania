@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface ShortcutsProps {
-  channel: any;
-  showQualityMenu: boolean;
+  menuOpen: boolean;
   isMuted: boolean;
   volume: number;
   togglePlay: () => void;
@@ -15,124 +14,63 @@ interface ShortcutsProps {
   goPrev: () => void;
   onClose?: () => void;
   pokeControls: () => void;
-  setShowQualityMenu: (v: boolean) => void;
+  setMenuOpen: (v: boolean) => void;
   setGuideOpen: (updater: (prev: boolean) => boolean) => void;
   flash: (msg: string) => void;
 }
 
-export function usePlayerShortcuts({
-  channel,
-  showQualityMenu,
-  isMuted,
-  volume,
-  togglePlay,
-  toggleMute,
-  toggleFullscreen,
-  cycleFit,
-  goLive,
-  changeVolume,
-  goNext,
-  goPrev,
-  onClose,
-  pokeControls,
-  setShowQualityMenu,
-  setGuideOpen,
-  flash,
-}: ShortcutsProps) {
+/**
+ * Live player keyboard shortcuts:
+ * Space/K play · M mute · ↑/↓ volume · N/P or PageDown/PageUp channel · F fullscreen
+ * A picture size · G channel list · L jump to live · Esc close menu / player
+ */
+export function usePlayerShortcuts(props: ShortcutsProps) {
+  // Always read the latest props without re-binding the listener on every render.
+  const ref = useRef(props);
+  ref.current = props;
+
   useEffect(() => {
-    if (!channel) return;
-
     const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
-      if (tag === 'input' || tag === 'textarea') return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || target?.isContentEditable) return;
 
-      let handled = false;
-      switch (e.key) {
-        case ' ':
-        case 'k':
-        case 'K':
-          togglePlay();
-          handled = true;
-          break;
-        case 'm':
-        case 'M':
-          toggleMute();
-          handled = true;
-          break;
-        case 'f':
-        case 'F':
-          toggleFullscreen();
-          handled = true;
-          break;
-        case 'a':
-        case 'A':
-          cycleFit();
-          handled = true;
-          break;
-        case 'g':
-        case 'G':
-          setGuideOpen((o) => !o);
-          handled = true;
-          break;
-        case 'l':
-        case 'L':
-          goLive();
-          flash('Live');
-          handled = true;
-          break;
-        case 'ArrowUp':
-          changeVolume((isMuted ? 0 : volume) + 0.1);
-          handled = true;
-          break;
-        case 'ArrowDown':
-          changeVolume((isMuted ? 0 : volume) - 0.1);
-          handled = true;
-          break;
-        case 'n':
-        case 'N':
-        case 'PageDown':
-          goNext();
-          handled = true;
-          break;
-        case 'p':
-        case 'P':
-        case 'PageUp':
-          goPrev();
-          handled = true;
-          break;
-        case 'Escape':
-          if (showQualityMenu) setShowQualityMenu(false);
-          else if (!document.fullscreenElement) onClose?.();
-          handled = true;
-          break;
-      }
+      const p = ref.current;
+      const vol = p.isMuted ? 0 : p.volume;
+      const actions: Record<string, () => void> = {
+        ' ': p.togglePlay,
+        k: p.togglePlay,
+        m: p.toggleMute,
+        f: p.toggleFullscreen,
+        a: p.cycleFit,
+        g: () => p.setGuideOpen((o) => !o),
+        l: () => {
+          p.goLive();
+          p.flash('Live');
+        },
+        arrowup: () => p.changeVolume(vol + 0.1),
+        arrowdown: () => p.changeVolume(vol - 0.1),
+        n: p.goNext,
+        pagedown: p.goNext,
+        p: p.goPrev,
+        pageup: p.goPrev,
+        escape: () => {
+          if (p.menuOpen) p.setMenuOpen(false);
+          else if (!document.fullscreenElement) p.onClose?.();
+        },
+      };
 
-      if (handled) {
-        e.preventDefault();
-        pokeControls();
-      }
+      const action = actions[e.key.toLowerCase()];
+      if (!action) return;
+      // Let Space/Enter activate a focused button instead of toggling playback.
+      if (e.key === ' ' && tag === 'button') return;
+      e.preventDefault();
+      action();
+      p.pokeControls();
     };
 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [
-    channel,
-    togglePlay,
-    toggleMute,
-    toggleFullscreen,
-    cycleFit,
-    goLive,
-    changeVolume,
-    goNext,
-    goPrev,
-    onClose,
-    flash,
-    pokeControls,
-    showQualityMenu,
-    isMuted,
-    volume,
-    setShowQualityMenu,
-    setGuideOpen,
-  ]);
+  }, []);
 }
-

@@ -5,6 +5,9 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const targetUrl = searchParams.get('url');
+  // Some feeds only answer when called with a specific Referer / User-Agent.
+  const referrer = searchParams.get('ref');
+  const userAgent = searchParams.get('ua');
 
   if (!targetUrl) {
     return new NextResponse('Missing url parameter', { status: 400 });
@@ -16,9 +19,16 @@ export async function GET(req: NextRequest) {
 
     const headers: Record<string, string> = {
       'User-Agent':
+        userAgent ||
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       Accept: '*/*',
     };
+    if (referrer) {
+      headers.Referer = referrer;
+      try {
+        headers.Origin = new URL(referrer).origin;
+      } catch {}
+    }
 
     let response: Response;
     try {
@@ -42,7 +52,10 @@ export async function GET(req: NextRequest) {
       const baseUrl = response.url || targetUrl;
       const proxify = (uri: string) => {
         try {
-          return `/api/proxy?url=${encodeURIComponent(new URL(uri, baseUrl).toString())}`;
+          const params = new URLSearchParams({ url: new URL(uri, baseUrl).toString() });
+          if (referrer) params.set('ref', referrer);
+          if (userAgent) params.set('ua', userAgent);
+          return `/api/proxy?${params.toString()}`;
         } catch {
           return uri;
         }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Play,
   Pause,
@@ -7,88 +7,52 @@ import {
   VolumeX,
   Maximize,
   Minimize,
-  SkipBack,
-  SkipForward,
-  PictureInPicture2,
-  ListVideo,
+  ChevronUp,
+  ChevronDown,
+  Settings,
+  PanelRightOpen,
+  PanelRightClose,
 } from 'lucide-react';
-import { AspectRatioToggle } from './AspectRatioToggle';
-import { QualitySelector } from './QualitySelector';
-import { QualityLevel } from '@/hooks/useHlsPlayer';
-
-export type ObjectFit = 'contain' | 'cover' | 'fill';
+import { IChannel } from '@/lib/types';
+import { SettingsMenu, SettingsProps } from './SettingsMenu';
 
 interface PlayerControlsProps {
   isPlaying: boolean;
   isMuted: boolean;
   volume: number;
   isFullscreen: boolean;
-  objectFit: ObjectFit;
-  fitLabel: string;
-  qualityLevels: QualityLevel[];
-  currentQuality: number;
-  activeLabel?: string;
-  showQualityMenu: boolean;
   isBehindLive: boolean;
-  canPrev: boolean;
-  canNext: boolean;
-  guideOpen: boolean;
+  prevChannel: IChannel | null;
+  nextChannel: IChannel | null;
   hasGuide: boolean;
+  guideOpen: boolean;
+  menuOpen: boolean;
+  settings: SettingsProps;
   onPlayPause: () => void;
   onPrev: () => void;
   onNext: () => void;
   onToggleMute: () => void;
   onVolumeChange: (vol: number) => void;
   onToggleFullscreen: () => void;
-  onCycleFit: () => void;
-  onToggleQualityMenu: () => void;
-  onSelectQuality: (idx: number) => void;
+  onToggleMenu: () => void;
   onGoLive: () => void;
-  onTogglePip: () => void;
   onToggleGuide: () => void;
 }
 
 export function PlayerControls(props: PlayerControlsProps) {
-  // Checked after mount to avoid SSR hydration mismatch.
-  const [pipSupported, setPipSupported] = useState(false);
-  useEffect(() => setPipSupported(!!document.pictureInPictureEnabled), []);
-
-  const {
-    isPlaying,
-    isMuted,
-    volume,
-    isFullscreen,
-    objectFit,
-    fitLabel,
-    qualityLevels,
-    currentQuality,
-    activeLabel,
-    showQualityMenu,
-    isBehindLive,
-    canPrev,
-    canNext,
-    guideOpen,
-    hasGuide,
-  } = props;
-
+  const { isPlaying, isMuted, volume, isFullscreen, isBehindLive, prevChannel, nextChannel, hasGuide, guideOpen, menuOpen } = props;
   const effectiveVolume = isMuted ? 0 : volume;
   const VolumeIcon = effectiveVolume === 0 ? VolumeX : effectiveVolume < 0.5 ? Volume1 : Volume2;
 
   return (
-    <div className="player-controls" onClick={(e) => e.stopPropagation()}>
-      <div className="player-controls-group">
-        <button onClick={props.onPrev} className="player-ctrl-btn" disabled={!canPrev} data-tip="Previous (P)">
-          <SkipBack size={18} fill="currentColor" />
-        </button>
-        <button onClick={props.onPlayPause} className="player-ctrl-btn play" data-tip={isPlaying ? 'Pause (K)' : 'Play (K)'}>
+    <div className="lp-controls" onPointerUp={(e) => e.stopPropagation()}>
+      <div className="lp-controls-group">
+        <button onClick={props.onPlayPause} className="lp-btn lp-btn-play" aria-label={isPlaying ? 'Pause' : 'Play'} data-tip={isPlaying ? 'Pause (K)' : 'Play (K)'}>
           {isPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}
         </button>
-        <button onClick={props.onNext} className="player-ctrl-btn" disabled={!canNext} data-tip="Next (N)">
-          <SkipForward size={18} fill="currentColor" />
-        </button>
 
-        <div className="player-volume">
-          <button onClick={props.onToggleMute} className="player-ctrl-btn" data-tip={isMuted ? 'Unmute (M)' : 'Mute (M)'}>
+        <div className="lp-volume">
+          <button onClick={props.onToggleMute} className="lp-btn" aria-label={isMuted ? 'Unmute' : 'Mute'} data-tip={isMuted ? 'Unmute (M)' : 'Mute (M)'}>
             <VolumeIcon size={20} />
           </button>
           <input
@@ -97,7 +61,7 @@ export function PlayerControls(props: PlayerControlsProps) {
             max="1"
             step="0.01"
             aria-label="Volume"
-            className="player-range"
+            className="lp-range"
             value={effectiveVolume}
             style={{ '--val': `${effectiveVolume * 100}%` } as React.CSSProperties}
             onChange={(e) => props.onVolumeChange(parseFloat(e.target.value))}
@@ -106,40 +70,68 @@ export function PlayerControls(props: PlayerControlsProps) {
 
         <button
           onClick={props.onGoLive}
-          className={`player-live-pill ${isBehindLive ? 'behind' : ''}`}
-          data-tip={isBehindLive ? 'Jump to live (L)' : 'You are watching live'}
+          className={`lp-live ${isBehindLive ? 'behind' : ''}`}
+          data-tip={isBehindLive ? 'Jump to live (L)' : "You're watching live"}
         >
           <span className="dot" />
-          LIVE
+          {isBehindLive ? 'GO LIVE' : 'LIVE'}
         </button>
       </div>
 
-      <div className="player-controls-group">
-        <AspectRatioToggle fit={objectFit} label={fitLabel} onCycle={props.onCycleFit} />
-        <QualitySelector
-          levels={qualityLevels}
-          currentLevel={currentQuality}
-          activeLabel={activeLabel}
-          isOpen={showQualityMenu}
-          onToggle={props.onToggleQualityMenu}
-          onSelect={props.onSelectQuality}
-        />
-        {pipSupported && (
-          <button onClick={props.onTogglePip} className="player-ctrl-btn" data-tip="Picture in picture">
-            <PictureInPicture2 size={18} />
+      <div className="lp-controls-group">
+        <div className="lp-zapper" role="group" aria-label="Change channel">
+          <button
+            onClick={props.onPrev}
+            className="lp-btn"
+            disabled={!prevChannel}
+            aria-label={prevChannel ? `Previous channel: ${prevChannel.name}` : 'No previous channel'}
+            data-tip={prevChannel ? `↑ ${prevChannel.name} (P)` : undefined}
+          >
+            <ChevronUp size={20} />
           </button>
-        )}
+          <span className="lp-zapper-label">CH</span>
+          <button
+            onClick={props.onNext}
+            className="lp-btn"
+            disabled={!nextChannel}
+            aria-label={nextChannel ? `Next channel: ${nextChannel.name}` : 'No next channel'}
+            data-tip={nextChannel ? `↓ ${nextChannel.name} (N)` : undefined}
+          >
+            <ChevronDown size={20} />
+          </button>
+        </div>
+
+        <div className="lp-menu-anchor">
+          <button
+            onClick={props.onToggleMenu}
+            className={`lp-btn ${menuOpen ? 'on' : ''}`}
+            aria-label="Settings"
+            aria-expanded={menuOpen}
+            data-tip={menuOpen ? undefined : 'Settings'}
+          >
+            <Settings size={19} className={menuOpen ? 'lp-rotate' : ''} />
+          </button>
+          {menuOpen && <SettingsMenu {...props.settings} />}
+        </div>
+
         {hasGuide && (
           <button
             onClick={props.onToggleGuide}
-            className={`player-ctrl-btn ${guideOpen ? 'on' : ''}`}
-            data-tip="Channel guide (G)"
+            className={`lp-btn lp-hide-mobile ${guideOpen ? 'on' : ''}`}
+            aria-label={guideOpen ? 'Hide channel list' : 'Show channel list'}
+            data-tip={guideOpen ? 'Hide channels (G)' : 'Channels (G)'}
           >
-            <ListVideo size={19} />
+            {guideOpen ? <PanelRightClose size={19} /> : <PanelRightOpen size={19} />}
           </button>
         )}
-        <button onClick={props.onToggleFullscreen} className="player-ctrl-btn" data-tip={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}>
-          {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+
+        <button
+          onClick={props.onToggleFullscreen}
+          className="lp-btn"
+          aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+          data-tip={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
+        >
+          {isFullscreen ? <Minimize size={19} /> : <Maximize size={19} />}
         </button>
       </div>
     </div>
