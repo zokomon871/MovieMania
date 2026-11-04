@@ -2,7 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Star, Calendar, ArrowLeft } from 'lucide-react';
-import { getMovieDetails, getImageUrl } from '@/lib/tmdb';
+import { getMovieDetails } from '@/lib/tmdb';
+import { getImageUrl } from '@/lib/mediaUtils';
 import { VODPlayer } from '@/components/player/VODPlayer';
 
 export default async function MoviePlayerPage({ params }: { params: { id: string } }) {

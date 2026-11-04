@@ -16,7 +16,7 @@ export async function fetchChannelsService(params: IChannelFilterParams): Promis
   if (cached) return cached;
 
   const collection = await getChannelsCollection();
-  const filter: Filter<IChannel> = { is_nsfw: false };
+  const filter: Filter<IChannel> = { is_nsfw: false, online: { $ne: false } };
 
   if (favorites) {
     const favList = favorites.split(',').filter(Boolean);
@@ -60,7 +60,7 @@ export async function fetchCategoriesService(country?: string): Promise<ICategor
   if (cached) return cached;
 
   const collection = await getChannelsCollection();
-  const pipeline: any[] = [{ $match: { is_nsfw: false } }];
+  const pipeline: any[] = [{ $match: { is_nsfw: false, online: { $ne: false } } }];
   if (countryCode && countryCode !== 'ALL') {
     pipeline.push({ $match: { country: countryCode } });
   }
@@ -84,7 +84,7 @@ export async function fetchCountriesService(): Promise<ICountry[]> {
 
   const collection = await getChannelsCollection();
   const pipeline = [
-    { $match: { is_nsfw: false } },
+    { $match: { is_nsfw: false, online: { $ne: false } } },
     { $group: { _id: '$country', count: { $sum: 1 } } },
     { $match: { _id: { $nin: ['', null] } } },
     { $project: { code: '$_id', name: '$_id', count: 1, _id: 0 } },

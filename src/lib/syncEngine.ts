@@ -1,5 +1,6 @@
 import { getDb, getChannelsCollection, getCategoriesCollection, getCountriesCollection, ensureIndexes } from './mongodb';
 import { invalidateCachePattern } from './redis';
+import { syncMoviesPipeline } from './movieSync';
 import { IChannel, ICategory, ICountry, IStream, ILogo } from './types';
 
 const CHANNELS_URL = 'https://iptv-org.github.io/api/channels.json';
@@ -99,6 +100,7 @@ export async function runSyncPipeline(): Promise<SyncStats> {
       await countriesCol.insertMany(countriesRes);
     }
 
+    await syncMoviesPipeline(5).catch(console.warn);
     await invalidateCachePattern('*');
 
     syncStats = {

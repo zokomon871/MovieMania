@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import { IStream } from '@/lib/types';
+import { useVideoMediaEvents } from './useVideoMediaEvents';
 
 export interface QualityLevel {
   index: number;
@@ -8,8 +9,6 @@ export interface QualityLevel {
   bitrate: number;
   label: string;
 }
-
-const LIVE_EDGE_TOLERANCE = 12; // seconds behind live before we show "behind live"
 
 export function useHlsPlayer(
   stream: IStream | undefined,
@@ -24,15 +23,12 @@ export function useHlsPlayer(
   const [isBuffering, setIsBuffering] = useState(true);
   const [streamError, setStreamError] = useState<string | null>(null);
   const [qualityLevels, setQualityLevels] = useState<QualityLevel[]>([]);
-  /** User-selected level; -1 = auto. */
   const [currentQuality, setCurrentQuality] = useState(-1);
-  /** Level hls.js is actually playing right now. */
   const [activeLevel, setActiveLevel] = useState(-1);
   const [usingProxy, setUsingProxy] = useState(false);
   const [isBehindLive, setIsBehindLive] = useState(false);
   const [retryToken, setRetryToken] = useState(0);
 
-  // Keep callbacks in refs so inline handlers from the parent don't re-trigger stream loading.
   const onOfflineRef = useRef(onStreamOffline);
   const onOnlineRef = useRef(onStreamOnline);
   useEffect(() => {
@@ -61,9 +57,9 @@ export function useHlsPlayer(
       setCurrentQuality(-1);
       const effectiveUrl = forceProxy ? `/api/proxy?url=${encodeURIComponent(url)}` : url;
 
-      const fail = (message: string) => {
+      const fail = (msg: string) => {
         if (watchdogRef.current) clearTimeout(watchdogRef.current);
-        setStreamError(message);
+        setStreamError(msg);
         setIsBuffering(false);
         onOfflineRef.current?.();
       };
@@ -79,15 +75,12 @@ export function useHlsPlayer(
         }
       }, forceProxy ? 12000 : 7000);
 
-      const tryPlay = () => {
-        video.play().catch(() => setIsPlaying(false));
-      };
+      const tryPlay = () => video.play().catch(() => setIsPlaying(false));
 
       if (Hls.isSupported()) {
         const hls = new Hls({
           enableWorker: true,
           lowLatencyMode: true,
-          // On the direct attempt, fail fast (e.g. CORS) so we fall back to the proxy quickly.
           ...(forceProxy ? {} : { manifestLoadingMaxRetry: 0, levelLoadingMaxRetry: 0 }),
         });
         hlsRef.current = hls;
@@ -96,14 +89,12 @@ export function useHlsPlayer(
 
         hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
           setQualityLevels(
-            data.levels
-              .map((lvl, index) => ({
-                index,
-                height: lvl.height,
-                bitrate: lvl.bitrate,
-                label: lvl.height ? `${lvl.height}p` : `${Math.round(lvl.bitrate / 1000)} kbps`,
-              }))
-              .sort((a, b) => b.height - a.height || b.bitrate - a.bitrate)
+            data.levels.map((lvl, index) => ({
+              index,
+              height: lvl.height,
+              bitrate: lvl.bitrate,
+              label: lvl.height ? `${lvl.height}p` : `${Math.round(lvl.bitrate / 1000)} kbps`,
+            })).sort((a, b) => b.height - a.height || b.bitrate - a.bitrate)
           );
           tryPlay();
         });
@@ -136,7 +127,6 @@ export function useHlsPlayer(
     [cleanup]
   );
 
-  // Load / reload stream
   useEffect(() => {
     if (stream?.url) {
       setUsingProxy(false);
@@ -145,41 +135,7 @@ export function useHlsPlayer(
     return cleanup;
   }, [stream?.url, retryToken, loadStream, cleanup]);
 
-  // Sync UI state with the media element
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    const onWaiting = () => setIsBuffering(true);
-    const onPlaying = () => {
-      setIsBuffering(false);
-      setIsPlaying(true);
-    };
-    const onTimeUpdate = () => {
-      const live = hlsRef.current?.liveSyncPosition;
-      setIsBehindLive(live != null && video.currentTime < live - LIVE_EDGE_TOLERANCE);
-    };
-    video.addEventListener('play', onPlay);
-    video.addEventListener('pause', onPause);
-    video.addEventListener('waiting', onWaiting);
-    video.addEventListener('playing', onPlaying);
-    video.addEventListener('timeupdate', onTimeUpdate);
-    return () => {
-      video.removeEventListener('play', onPlay);
-      video.removeEventListener('pause', onPause);
-      video.removeEventListener('waiting', onWaiting);
-      video.removeEventListener('playing', onPlaying);
-      video.removeEventListener('timeupdate', onTimeUpdate);
-    };
-  }, [stream?.url]);
-
-  const setQuality = useCallback((lvlIndex: number) => {
-    if (hlsRef.current) {
-      hlsRef.current.currentLevel = lvlIndex;
-      setCurrentQuality(lvlIndex);
-    }
-  }, []);
+  useVideoMediaEvents({ videoRef, hlsRef, setIsPlaying, setIsBuffering, setIsBehindLive });
 
   const togglePlay = useCallback(() => {
     const video = videoRef.current;
@@ -188,28 +144,22 @@ export function useHlsPlayer(
     else video.pause();
   }, []);
 
-  const goLive = useCallback(() => {
-    const video = videoRef.current;
-    const live = hlsRef.current?.liveSyncPosition;
-    if (video && live != null) video.currentTime = live;
-    video?.play().catch(() => {});
+  const setQuality = useCallback((index: number) => {
+    setCurrentQuality(index);
+    if (hlsRef.current) hlsRef.current.currentLevel = index;
   }, []);
 
-  const retry = useCallback(() => setRetryToken((t) => t + 1), []);
+  const goLive = useCallback(() => {
+    const video = videoRef.current;
+    const target = hlsRef.current?.liveSyncPosition ?? video?.duration;
+    if (video && target != null && Number.isFinite(target)) {
+      video.currentTime = target;
+      video.play().catch(console.error);
+    }
+  }, []);
 
   return {
-    videoRef,
-    isPlaying,
-    isBuffering,
-    streamError,
-    qualityLevels,
-    currentQuality,
-    activeLevel,
-    usingProxy,
-    isBehindLive,
-    togglePlay,
-    setQuality,
-    goLive,
-    retry,
+    videoRef, isPlaying, isBuffering, streamError, qualityLevels, currentQuality,
+    activeLevel, usingProxy, isBehindLive, togglePlay, setQuality, goLive, retry: () => setRetryToken((t) => t + 1),
   };
 }

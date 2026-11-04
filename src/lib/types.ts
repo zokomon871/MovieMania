@@ -76,8 +76,44 @@ export interface IChannelListResponse {
   hasMore: boolean;
 }
 
+export interface IMovie {
+  id: string;
+  title: string;
+  year?: string;
+  overview?: string;
+  poster?: string | null;
+  backdrop?: string | null;
+  rating?: number;
+  genres?: string[];
+  type?: 'movie' | 'series';
+  updated_at?: Date | string;
+}
+
+export interface IEpisode {
+  id: string;
+  season: number;
+  episode: number;
+  title?: string;
+  overview?: string;
+  thumbnail?: string | null;
+}
+
+export interface ISeries {
+  id: string;
+  title: string;
+  year?: string;
+  overview?: string;
+  poster?: string | null;
+  backdrop?: string | null;
+  rating?: number;
+  genres?: string[];
+  seasonsCount?: number;
+  episodes?: IEpisode[];
+  updated_at?: Date | string;
+}
+
 export interface ITMDBMovie {
-  id: number;
+  id: string | number;
   title: string;
   poster_path: string | null;
   backdrop_path: string | null;

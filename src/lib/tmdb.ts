@@ -1,68 +1,134 @@
-import { ITMDBMovie } from './types';
+import { ITMDBMovie, IMovie } from './types';
+import {
+  getTrendingMoviesFromDb,
+  getPopularMoviesFromDb,
+  searchMoviesFromDb,
+  getMovieByIdFromDb,
+  saveDiscoveredMoviesToDb,
+} from './movieService';
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
-const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+const CINEMETA_URL = 'https://v3-cinemeta.strem.io';
 
-async function fetchFromTMDb(endpoint: string, params: Record<string, string | number> = {}) {
-  if (!TMDB_API_KEY) {
-    return { results: [] };
-  }
-  const query = new URLSearchParams({
-    api_key: TMDB_API_KEY,
-    language: 'en-US',
-    ...Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)])),
-  }).toString();
-
-  const res = await fetch(`${TMDB_BASE_URL}${endpoint}?${query}`, { next: { revalidate: 3600 } });
-  if (!res.ok) throw new Error(`TMDB error ${res.status}: ${res.statusText}`);
-  return res.json();
+function normalizeMeta(m: any): ITMDBMovie {
+  return {
+    id: m.id,
+    title: m.name || m.title || 'Untitled',
+    poster_path: m.poster || null,
+    backdrop_path: m.background || m.poster || null,
+    overview: m.description || '',
+    release_date: m.releaseInfo || m.year || '',
+    vote_average: m.imdbRating ? parseFloat(m.imdbRating) : 0,
+  };
 }
 
 export async function getTrendingMovies(): Promise<ITMDBMovie[]> {
+  const local = await getTrendingMoviesFromDb(20);
+  if (local.length > 0) return local;
+
   try {
-    const data = await fetchFromTMDb('/trending/movie/day');
-    return data.results || [];
-  } catch (err) {
-    console.warn('[TMDb] Trending movies fetch failed:', err);
+    const res = await fetch(`${CINEMETA_URL}/catalog/movie/top.json`, { next: { revalidate: 3600 } });
+    const data = await res.json();
+    return (data.metas || []).map(normalizeMeta);
+  } catch {
     return [];
   }
 }
 
 export async function getPopularMovies(page = 1): Promise<ITMDBMovie[]> {
+  const local = await getPopularMoviesFromDb(page, 20);
+  if (local.length > 0) return local;
+
   try {
-    const data = await fetchFromTMDb('/movie/popular', { page });
-    return data.results || [];
-  } catch (err) {
-    console.warn('[TMDb] Popular movies fetch failed:', err);
+    const skip = Math.max(0, (page - 1) * 20);
+    const url = skip > 0 ? `${CINEMETA_URL}/catalog/movie/top/skip=${skip}.json` : `${CINEMETA_URL}/catalog/movie/top.json`;
+    const res = await fetch(url, { next: { revalidate: 3600 } });
+    const data = await res.json();
+    return (data.metas || []).map(normalizeMeta);
+  } catch {
     return [];
   }
 }
 
-export async function searchMovies(query: string, page = 1): Promise<ITMDBMovie[]> {
-  if (!query.trim()) return [];
+export async function searchMovies(
+  query = '',
+  genre = '',
+  sortBy = 'rating',
+  minRating = 0,
+  page = 1
+): Promise<ITMDBMovie[]> {
+  // 1. Strictly check local database first!
+  const local = await searchMoviesFromDb(query, genre, sortBy, minRating, page, 24);
+  if (local.length > 0) return local; // Found in DB -> NEVER fetch externally!
+
+  // 2. Only fetch when NOT in database
+  if (!query.trim() && (!genre || genre === 'All')) return [];
+
   try {
-    const data = await fetchFromTMDb('/search/movie', { query, page });
-    return data.results || [];
-  } catch (err) {
-    console.warn('[TMDb] Search movies fetch failed:', err);
+    const q = query.trim();
+    const endpoint = q
+      ? `/catalog/movie/top/search=${encodeURIComponent(q)}.json`
+      : `/catalog/movie/top/genre=${encodeURIComponent(genre)}.json`;
+    const res = await fetch(`${CINEMETA_URL}${endpoint}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const rawMetas = Array.isArray(data.metas) ? data.metas : [];
+
+    // Record newly discovered movies in MongoDB with 0 duplicates
+    const toSave: IMovie[] = rawMetas
+      .filter((m: any) => m.id && m.name)
+      .map((m: any) => ({
+        id: m.id,
+        title: m.name,
+        year: m.releaseInfo || m.year || '',
+        overview: m.description || '',
+        poster: m.poster || null,
+        backdrop: m.background || m.poster || null,
+        rating: m.imdbRating ? parseFloat(m.imdbRating) : 0,
+        genres: Array.isArray(m.genres) ? m.genres : genre && genre !== 'All' ? [genre] : [],
+        type: 'movie',
+      }));
+
+    if (toSave.length > 0) {
+      await saveDiscoveredMoviesToDb(toSave);
+    }
+
+    return rawMetas.map(normalizeMeta);
+  } catch {
     return [];
   }
 }
 
 export async function getMovieDetails(id: string): Promise<ITMDBMovie | null> {
+  // 1. Strictly check local database first!
+  const local = await getMovieByIdFromDb(id);
+  if (local) return local; // Found in DB -> NEVER fetch externally!
+
+  // 2. Only fetch when NOT in database
   try {
-    return await fetchFromTMDb(`/movie/${id}`);
+    const res = await fetch(`${CINEMETA_URL}/meta/movie/${id}.json`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.meta?.id || !data.meta?.name) return null;
+
+    const m = data.meta;
+    const movieDoc: IMovie = {
+      id: m.id,
+      title: m.name,
+      year: m.releaseInfo || m.year || '',
+      overview: m.description || '',
+      poster: m.poster || null,
+      backdrop: m.background || m.poster || null,
+      rating: m.imdbRating ? parseFloat(m.imdbRating) : 0,
+      genres: Array.isArray(m.genres) ? m.genres : [],
+      type: 'movie',
+    };
+
+    // Record discovered movie in MongoDB
+    await saveDiscoveredMoviesToDb([movieDoc]);
+    return normalizeMeta(m);
   } catch {
     return null;
   }
 }
 
-export function getStreamEmbedUrl(tmdbId: string): string {
-  return `https://vidsrc.mov/embed/movie/${tmdbId}`;
-}
-
-export function getImageUrl(path: string | null, size: 'w500' | 'original' = 'w500'): string {
-  if (!path) return 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop';
-  return `https://image.tmdb.org/t/p/${size}${path}`;
-}
-
+export { getStreamEmbedUrl, getImageUrl } from './mediaUtils';

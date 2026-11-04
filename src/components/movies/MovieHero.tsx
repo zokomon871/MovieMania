@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Play, Star, Calendar } from 'lucide-react';
 import { ITMDBMovie } from '@/lib/types';
-import { getImageUrl } from '@/lib/tmdb';
+import { getImageUrl } from '@/lib/mediaUtils';
 
 export function MovieHero({ movie }: { movie: ITMDBMovie }) {
   if (!movie) return null;
@@ -37,8 +37,8 @@ export function MovieHero({ movie }: { movie: ITMDBMovie }) {
         </h1>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '14px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#fbbf24', fontWeight: 700 }}>
-            <Star size={16} fill="#fbbf24" /> {movie.vote_average?.toFixed(1) || 'NR'}
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--accent)', fontWeight: 700 }}>
+            <Star size={16} fill="var(--accent)" /> {movie.vote_average?.toFixed(1) || 'NR'}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <Calendar size={14} /> {movie.release_date?.substring(0, 4)}

@@ -22,6 +22,11 @@ export function useOfflineChannels() {
       const next = [...prev, channelId];
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        fetch('/api/channels/health', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ channelId, online: false }),
+        }).catch(() => {});
       } catch (err) {
         console.error(err);
       }
@@ -35,6 +40,11 @@ export function useOfflineChannels() {
       const next = prev.filter((id) => id !== channelId);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        fetch('/api/channels/health', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ channelId, online: true }),
+        }).catch(() => {});
       } catch (err) {
         console.error(err);
       }
@@ -44,4 +54,3 @@ export function useOfflineChannels() {
 
   return { offlineChannels, markOffline, markOnline };
 }
-

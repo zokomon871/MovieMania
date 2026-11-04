@@ -3,11 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Play, Film, Tv, Star } from 'lucide-react';
+import { Play, Film, Tv, Star, Layers } from 'lucide-react';
 
 export function Navigation() {
   const pathname = usePathname();
   const isMovies = pathname.startsWith('/movies');
+  const isSeries = pathname.startsWith('/series');
   const isFavorites = pathname.startsWith('/favorites');
   const isHome = pathname === '/';
 
@@ -59,7 +60,26 @@ export function Navigation() {
               transition: 'all 0.2s',
             }}
           >
-            <Film size={16} /> VOD Cinema
+            <Film size={16} /> Movies
+          </Link>
+
+          <Link
+            href="/series"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '0.9rem',
+              fontWeight: 600,
+              textDecoration: 'none',
+              background: isSeries ? 'var(--accent)' : 'transparent',
+              color: isSeries ? '#fff' : 'var(--text-secondary)',
+              transition: 'all 0.2s',
+            }}
+          >
+            <Layers size={16} /> Series
           </Link>
 
           <Link

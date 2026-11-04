@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Star, Play } from 'lucide-react';
 import { ITMDBMovie } from '@/lib/types';
-import { getImageUrl } from '@/lib/tmdb';
+import { getImageUrl } from '@/lib/mediaUtils';
 
 export function MovieCard({ movie }: { movie: ITMDBMovie }) {
   const poster = getImageUrl(movie.poster_path);
@@ -27,8 +27,8 @@ export function MovieCard({ movie }: { movie: ITMDBMovie }) {
         </h4>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
           <span>{year}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#fbbf24', fontWeight: 600 }}>
-            <Star size={12} fill="#fbbf24" />
+          <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--accent)', fontWeight: 600 }}>
+            <Star size={12} fill="var(--accent)" />
             {movie.vote_average ? movie.vote_average.toFixed(1) : 'NR'}
           </span>
         </div>
