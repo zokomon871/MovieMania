@@ -95,7 +95,7 @@ export function HeroBillboard({
 
           <div className="hero-actions">
             <button onClick={handleWatch} className="hero-btn-primary">
-              <Play size={20} fill="#fff" />
+              <Play size={20} fill="currentColor" />
               <span>Watch Live Free</span>
             </button>
 

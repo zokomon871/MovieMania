@@ -14,6 +14,7 @@ interface MediaRowProps {
   type: 'movie' | 'series';
   showRank?: boolean;
   viewAllHref?: string;
+  onSelectMedia?: (item: ITMDBMovie | ISeries) => void;
 }
 
 export function MediaRow({
@@ -23,6 +24,7 @@ export function MediaRow({
   type,
   showRank = false,
   viewAllHref,
+  onSelectMedia,
 }: MediaRowProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -61,7 +63,7 @@ export function MediaRow({
         <div className="media-shelf-actions">
           {viewAllHref && (
             <Link href={viewAllHref} className="media-shelf-view-all">
-              <span>View All</span>
+              <span>Explore All</span>
               <ArrowRight size={14} />
             </Link>
           )}
@@ -93,12 +95,21 @@ export function MediaRow({
         className="media-shelf-carousel"
       >
         {items.map((item, idx) => (
-          <div key={item.id} className="media-shelf-card-wrapper">
-            {type === 'movie' ? (
-              <MovieCard movie={item as ITMDBMovie} rank={showRank ? idx + 1 : undefined} />
-            ) : (
-              <SeriesCard series={item as ISeries} rank={showRank ? idx + 1 : undefined} />
-            )}
+          <div key={item.id} className={showRank ? 'top10-card-wrapper' : 'media-shelf-card-wrapper'}>
+            {showRank && <span className="top10-rank-number">{idx + 1}</span>}
+            <div className={showRank ? 'top10-poster-box' : undefined}>
+              {type === 'movie' ? (
+                <MovieCard
+                  movie={item as ITMDBMovie}
+                  onSelect={onSelectMedia ? () => onSelectMedia(item) : undefined}
+                />
+              ) : (
+                <SeriesCard
+                  series={item as ISeries}
+                  onSelect={onSelectMedia ? () => onSelectMedia(item) : undefined}
+                />
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -107,4 +118,3 @@ export function MediaRow({
 }
 
 export default MediaRow;
-

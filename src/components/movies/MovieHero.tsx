@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Play, Star, Calendar } from 'lucide-react';
+import { Play, Star, Calendar, Info } from 'lucide-react';
 import { ITMDBMovie } from '@/lib/types';
 import { getImageUrl } from '@/lib/mediaUtils';
 
@@ -33,15 +33,23 @@ export function MovieHero({ movie }: { movie: ITMDBMovie }) {
           <span className="movie-hero-year">
             <Calendar size={14} /> {movie.release_date?.substring(0, 4)}
           </span>
+          <span className="media-modal-badge" style={{ marginLeft: '4px' }}>
+            1080p FHD
+          </span>
         </div>
 
         <p className="movie-hero-overview">
           {movie.overview}
         </p>
 
-        <Link href={`/movies/${movie.id}`} className="movie-hero-btn">
-          <Play size={18} fill="#fff" /> Watch Movie Free
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <Link href={`/movies/${movie.id}`} className="movie-hero-btn">
+            <Play size={18} fill="currentColor" /> Watch Movie Free
+          </Link>
+          <Link href={`/movies/${movie.id}`} className="movie-hero-btn-secondary">
+            <Info size={18} /> Details
+          </Link>
+        </div>
       </div>
     </div>
   );

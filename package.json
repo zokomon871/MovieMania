@@ -5,6 +5,7 @@
   "description": "Unified Next.js Live IPTV & VOD Cinema streaming platform",
   "scripts": {
     "dev": "next dev -p 3000",
+    "warm": "node scripts/warm.mjs",
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "next lint"

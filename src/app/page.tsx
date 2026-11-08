@@ -73,7 +73,7 @@ export default function HomePage() {
           />
         )}
 
-        <div style={{ marginTop: isDefaultView ? '48px' : '0' }}>
+        <div id="live-directory" style={{ marginTop: isDefaultView ? '48px' : '0', scrollMarginTop: '80px' }}>
           <div style={{ marginBottom: '16px' }}>
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', margin: 0 }}>
               Live Television Directory

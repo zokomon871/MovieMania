@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Flame, Trophy, Layers, Newspaper, Tv } from 'lucide-react';
+import { Flame, Trophy, Layers, Newspaper } from 'lucide-react';
 import { ITMDBMovie, ISeries, IChannel } from '@/lib/types';
 import { MediaRow } from '@/components/common/MediaRow';
 import { ChannelRow } from '@/components/channels/ChannelRow';
+import { MediaModal } from '@/components/common/MediaModal';
 
 interface HomeShowcaseProps {
   selectedChannelId?: string;
@@ -27,6 +28,9 @@ export function HomeShowcase({
   const [sportsChannels, setSportsChannels] = useState<IChannel[]>([]);
   const [newsChannels, setNewsChannels] = useState<IChannel[]>([]);
 
+  const [modalItem, setModalItem] = useState<ITMDBMovie | ISeries | null>(null);
+  const [modalType, setModalType] = useState<'movie' | 'series'>('movie');
+
   useEffect(() => {
     fetch('/api/movies/trending').then((r) => r.json()).then((d) => setTrendingMovies(d.movies || [])).catch(() => {});
     fetch('/api/movies/popular').then((r) => r.json()).then((d) => setPopularMovies(d.movies || [])).catch(() => {});
@@ -37,6 +41,16 @@ export function HomeShowcase({
 
   const top10 = popularMovies.slice(0, 10);
 
+  const handleOpenMovie = (item: ITMDBMovie | ISeries) => {
+    setModalItem(item);
+    setModalType('movie');
+  };
+
+  const handleOpenSeries = (item: ITMDBMovie | ISeries) => {
+    setModalItem(item);
+    setModalType('series');
+  };
+
   return (
     <div className="home-showcase-shelves">
       {trendingMovies.length > 0 && (
@@ -46,6 +60,7 @@ export function HomeShowcase({
           items={trendingMovies}
           type="movie"
           viewAllHref="/movies"
+          onSelectMedia={handleOpenMovie}
         />
       )}
 
@@ -57,6 +72,7 @@ export function HomeShowcase({
           type="movie"
           showRank={true}
           viewAllHref="/movies"
+          onSelectMedia={handleOpenMovie}
         />
       )}
 
@@ -67,6 +83,7 @@ export function HomeShowcase({
           items={popularSeries}
           type="series"
           viewAllHref="/series"
+          onSelectMedia={handleOpenSeries}
         />
       )}
 
@@ -95,9 +112,15 @@ export function HomeShowcase({
           onToggleFavorite={onToggleFavorite}
         />
       )}
+
+      <MediaModal
+        item={modalItem}
+        type={modalType}
+        isOpen={!!modalItem}
+        onClose={() => setModalItem(null)}
+      />
     </div>
   );
 }
 
 export default HomeShowcase;
-

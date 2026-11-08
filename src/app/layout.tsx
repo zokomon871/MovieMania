@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import '@/styles/globals.css';
 import { Navigation } from '@/components/layout/Navigation';
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 import { Footer } from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
-  title: 'MovieMania - Live IPTV & VOD Cinema Streaming',
-  description: 'Watch thousands of free live TV channels, breaking news, sports, and cinema movies in HD.',
+  title: 'MovieMania - Stream Movies, TV Shows & Live TV',
+  description: 'Your ultimate streaming destination. Watch movies, TV shows, and live TV in HD with no ads.',
 };
 
 export const viewport: Viewport = {
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="bg-ambient-vignette" />
         <Navigation />
         {children}
+        <MobileBottomNav />
         <Footer />
       </body>
     </html>

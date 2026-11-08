@@ -9,14 +9,22 @@ import { getImageUrl } from '@/lib/mediaUtils';
 interface MovieCardProps {
   movie: ITMDBMovie;
   rank?: number;
+  onSelect?: (movie: ITMDBMovie) => void;
 }
 
-export function MovieCard({ movie, rank }: MovieCardProps) {
+export function MovieCard({ movie, rank, onSelect }: MovieCardProps) {
   const poster = getImageUrl(movie.poster_path);
   const year = movie.release_date?.substring(0, 4) || '';
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (onSelect) {
+      e.preventDefault();
+      onSelect(movie);
+    }
+  };
+
   return (
-    <Link href={`/movies/${movie.id}`} className="movie-card-item" style={{ textDecoration: 'none' }}>
+    <Link href={`/movies/${movie.id}`} onClick={handleClick} className="movie-card-item" style={{ textDecoration: 'none' }}>
       <div className="movie-poster-box">
         <img src={poster} alt={movie.title} loading="lazy" />
 

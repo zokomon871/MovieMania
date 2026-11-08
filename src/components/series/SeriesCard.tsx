@@ -9,13 +9,21 @@ import { getImageUrl } from '@/lib/mediaUtils';
 interface SeriesCardProps {
   series: ISeries;
   rank?: number;
+  onSelect?: (series: ISeries) => void;
 }
 
-export function SeriesCard({ series, rank }: SeriesCardProps) {
+export function SeriesCard({ series, rank, onSelect }: SeriesCardProps) {
   const poster = getImageUrl(series.poster || series.backdrop || null);
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (onSelect) {
+      e.preventDefault();
+      onSelect(series);
+    }
+  };
+
   return (
-    <Link href={`/series/${series.id}`} className="movie-card-item" style={{ textDecoration: 'none' }}>
+    <Link href={`/series/${series.id}`} onClick={handleClick} className="movie-card-item" style={{ textDecoration: 'none' }}>
       <div className="movie-poster-box">
         <img src={poster} alt={series.title} loading="lazy" />
 

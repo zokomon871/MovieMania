@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Flame, Trophy, Film } from 'lucide-react';
 import { ITMDBMovie } from '@/lib/types';
 import { MovieFilterBar } from './MovieFilterBar';
 import { MovieCard } from './MovieCard';
 import { MovieHero } from './MovieHero';
+import { MediaRow } from '@/components/common/MediaRow';
+import { MediaModal } from '@/components/common/MediaModal';
 import { EmptyState } from '@/components/common/EmptyState';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -22,6 +25,7 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
   const [minRating, setMinRating] = useState(0);
   const [results, setResults] = useState<ITMDBMovie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<ITMDBMovie | null>(null);
 
   const debouncedQuery = useDebounce(query, 300);
   const isFiltering = debouncedQuery.trim() !== '' || genre !== 'All' || minRating > 0 || sortBy !== 'rating';
@@ -32,7 +36,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
       setIsLoading(false);
       return;
     }
-
     setIsLoading(true);
     const params = new URLSearchParams();
     if (debouncedQuery.trim()) params.set('query', debouncedQuery.trim());
@@ -58,7 +61,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
 
   return (
     <div>
-      {/* ── Search & Filters Prominently at Top ── */}
       <MovieFilterBar
         searchQuery={query}
         onSearchChange={setQuery}
@@ -78,61 +80,66 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', margin: 0 }}>
               {query.trim() ? `Search Results for "${query}"` : `${genre === 'All' ? 'Filtered' : genre} Movies`}
             </h2>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              {results.length} titles found
-            </span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{results.length} titles found</span>
           </div>
 
           {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
-              <LoadingSpinner />
-            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}><LoadingSpinner /></div>
           ) : results.length === 0 ? (
             <EmptyState
               title="No movies found"
-              message="No movies matched your current search filters. Try clearing or selecting another genre."
+              message="No movies matched your current filters. Try clearing or selecting another genre."
               onReset={handleReset}
             />
           ) : (
             <div className="vod-grid">
               {results.map((m) => (
-                <MovieCard key={m.id} movie={m} />
+                <MovieCard key={m.id} movie={m} onSelect={() => setSelectedMovie(m)} />
               ))}
             </div>
           )}
         </div>
       ) : (
         <>
-          {/* ── Featured Hero Billboard (below filter bar when not filtering) ── */}
           {heroMovie && (
             <div style={{ marginBottom: '40px' }}>
               <MovieHero movie={heroMovie} />
             </div>
           )}
 
-          <div style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '20px' }}>
-              Trending Blockbusters
-            </h2>
-            <div className="vod-grid">
-              {initialTrending.map((m) => (
-                <MovieCard key={m.id} movie={m} />
-              ))}
-            </div>
-          </div>
+          <MediaRow
+            title="Trending Movies Now"
+            icon={<Flame size={20} color="var(--accent)" />}
+            items={initialTrending}
+            type="movie"
+            onSelectMedia={(item) => setSelectedMovie(item as ITMDBMovie)}
+          />
 
-          <div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '20px' }}>
-              Popular Right Now
-            </h2>
-            <div className="vod-grid">
-              {initialPopular.map((m) => (
-                <MovieCard key={m.id} movie={m} />
-              ))}
-            </div>
-          </div>
+          <MediaRow
+            title="Top 10 Movies Today"
+            icon={<Trophy size={20} color="var(--accent)" />}
+            items={initialTrending.slice(0, 10)}
+            type="movie"
+            showRank={true}
+            onSelectMedia={(item) => setSelectedMovie(item as ITMDBMovie)}
+          />
+
+          <MediaRow
+            title="Popular Blockbusters"
+            icon={<Film size={20} color="var(--accent)" />}
+            items={initialPopular}
+            type="movie"
+            onSelectMedia={(item) => setSelectedMovie(item as ITMDBMovie)}
+          />
         </>
       )}
+
+      <MediaModal
+        item={selectedMovie}
+        type="movie"
+        isOpen={Boolean(selectedMovie)}
+        onClose={() => setSelectedMovie(null)}
+      />
     </div>
   );
 }
