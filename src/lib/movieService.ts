@@ -11,6 +11,7 @@ function toITMDB(m: IMovie): ITMDBMovie {
     overview: m.overview || '',
     release_date: m.year || '',
     vote_average: m.rating || 0,
+    tmdbId: m.tmdbId,
   };
 }
 
@@ -23,7 +24,7 @@ export async function getTrendingMoviesFromDb(limit = 20): Promise<ITMDBMovie[]>
     const col = await getMoviesCollection();
     const docs = await col.find({}).sort({ rating: -1 }).limit(limit).toArray();
     const results = docs.map(toITMDB);
-    if (results.length > 0) await setCachedJson(cacheKey, results, 600);
+    if (results.length > 0) await setCachedJson(cacheKey, results, 18000);
     return results;
   } catch {
     return [];
@@ -40,7 +41,7 @@ export async function getPopularMoviesFromDb(page = 1, limit = 20): Promise<ITMD
     const skip = Math.max(0, (page - 1) * limit);
     const docs = await col.find({}).sort({ year: -1, rating: -1 }).skip(skip).limit(limit).toArray();
     const results = docs.map(toITMDB);
-    if (results.length > 0) await setCachedJson(cacheKey, results, 600);
+    if (results.length > 0) await setCachedJson(cacheKey, results, 18000);
     return results;
   } catch {
     return [];
@@ -94,7 +95,7 @@ export async function getMovieByIdFromDb(id: string): Promise<ITMDBMovie | null>
     const doc = await col.findOne({ id });
     if (!doc) return null;
     const result = toITMDB(doc);
-    await setCachedJson(cacheKey, result, 3600);
+    await setCachedJson(cacheKey, result, 18000);
     return result;
   } catch {
     return null;

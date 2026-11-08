@@ -94,7 +94,7 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
               onReset={handleReset}
             />
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '20px' }}>
+            <div className="vod-grid">
               {results.map((m) => (
                 <MovieCard key={m.id} movie={m} />
               ))}
@@ -114,7 +114,7 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '20px' }}>
               Trending Blockbusters
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '20px' }}>
+            <div className="vod-grid">
               {initialTrending.map((m) => (
                 <MovieCard key={m.id} movie={m} />
               ))}
@@ -125,7 +125,7 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '20px' }}>
               Popular Right Now
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '20px' }}>
+            <div className="vod-grid">
               {initialPopular.map((m) => (
                 <MovieCard key={m.id} movie={m} />
               ))}

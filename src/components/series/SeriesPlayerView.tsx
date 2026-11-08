@@ -43,6 +43,7 @@ export function SeriesPlayerView({ series }: Props) {
     <div>
       <SeriesVODPlayer
         seriesId={series.id}
+        tmdbId={series.tmdbId}
         title={currentEpData?.title || series.title}
         season={currentSeason}
         episode={currentEpisode}

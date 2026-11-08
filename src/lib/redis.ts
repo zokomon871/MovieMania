@@ -26,7 +26,7 @@ export function getRedisClient(): Redis | null {
 
       redisClient.on('connect', () => {
         isRedisAvailable = true;
-        console.log('[Redis] Connected on port 6389');
+        console.log('[Redis] Connected successfully.');
       });
     } catch {
       isRedisAvailable = false;
@@ -47,7 +47,7 @@ export async function getCachedJson<T>(key: string): Promise<T | null> {
   }
 }
 
-export async function setCachedJson(key: string, data: unknown, ttlSeconds = 300): Promise<void> {
+export async function setCachedJson(key: string, data: unknown, ttlSeconds = 18000): Promise<void> {
   const redis = getRedisClient();
   if (!redis) return;
   try {

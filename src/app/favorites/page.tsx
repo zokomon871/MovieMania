@@ -27,7 +27,7 @@ export default function FavoritesPage() {
       <div className="container" style={{ paddingTop: '40px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
           <Star size={28} color="var(--accent)" fill="var(--accent)" />
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff', margin: 0 }}>
+          <h1 style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', fontWeight: 900, color: '#fff', margin: 0 }}>
             My Bookmarks
           </h1>
         </div>

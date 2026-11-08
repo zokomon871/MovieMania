@@ -43,7 +43,7 @@ export async function checkStreamHealth(url: string, timeoutMs = 3000): Promise<
       error: !isSuccess ? (res.status === 403 ? 'Geo-blocked (403)' : res.status === 404 ? 'Not Found (404)' : `HTTP ${res.status}`) : undefined,
     };
 
-    await setCachedJson(cacheKey, result, 1800);
+    await setCachedJson(cacheKey, result, 18000);
     return result;
   } catch (err: any) {
     clearTimeout(timer);
@@ -55,7 +55,7 @@ export async function checkStreamHealth(url: string, timeoutMs = 3000): Promise<
       error: isTimeout ? 'Timeout (> 3s)' : (err.message || 'Network error'),
     };
 
-    await setCachedJson(cacheKey, result, 600);
+    await setCachedJson(cacheKey, result, 18000);
     return result;
   }
 }

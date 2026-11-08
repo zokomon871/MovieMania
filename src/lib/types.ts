@@ -86,6 +86,7 @@ export interface IMovie {
   rating?: number;
   genres?: string[];
   type?: 'movie' | 'series';
+  tmdbId?: string | number;
   updated_at?: Date | string;
 }
 
@@ -109,6 +110,7 @@ export interface ISeries {
   genres?: string[];
   seasonsCount?: number;
   episodes?: IEpisode[];
+  tmdbId?: string | number;
   updated_at?: Date | string;
 }
 
@@ -120,5 +122,6 @@ export interface ITMDBMovie {
   overview: string;
   release_date: string;
   vote_average: number;
+  tmdbId?: string | number;
 }
 

@@ -1476,24 +1476,908 @@ html, body {
   box-shadow: var(--shadow-md);
 }
 
+.movie-poster-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2/3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+}
+
+.movie-poster-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* ============================================================
-   RESPONSIVE MEDIA QUERIES
+   1FLEX-STYLE MEDIA SHELVES (TRENDING, TOP 10, POPULAR CAROUSELS)
    ============================================================ */
+.media-shelf-section {
+  margin-bottom: 40px;
+}
+
+.media-shelf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.media-shelf-title-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.media-shelf-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.media-shelf-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.media-shelf-view-all {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity var(--duration-fast);
+}
+
+.media-shelf-view-all:hover {
+  opacity: 0.8;
+}
+
+.media-shelf-nav-arrows {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.shelf-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.shelf-nav-btn:hover:not(:disabled) {
+  background: var(--bg-surface-hover);
+  color: #fff;
+  border-color: var(--border-hover);
+}
+
+.shelf-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.media-shelf-carousel {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 4px 2px 14px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.media-shelf-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.media-shelf-card-wrapper {
+  flex: 0 0 170px;
+  max-width: 170px;
+}
+
+@media (max-width: 640px) {
+  .media-shelf-card-wrapper {
+    flex: 0 0 135px;
+    max-width: 135px;
+  }
+  .media-shelf-title {
+    font-size: 1.1rem;
+  }
+  .media-shelf-nav-arrows {
+    display: none;
+  }
+}
+
+/* ============================================================
+   CARD BADGES & STYLING (1FLEX-STYLE RANK & LABELS)
+   ============================================================ */
+.media-rank-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.82);
+  color: var(--accent);
+  border: 1px solid rgba(255, 210, 0, 0.35);
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.media-hd-pill {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+  letter-spacing: 0.5px;
+}
+
+.media-season-pill {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+}
+
+.media-card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.media-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.media-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ============================================================
+   GLOBAL NAVIGATION RESPONSIVE
+   ============================================================ */
+.global-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(7, 7, 9, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.global-nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  gap: 12px;
+}
+
+.global-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo-icon-box {
+  background: var(--accent);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-text {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.logo-accent {
+  color: var(--accent);
+}
+
+.global-nav-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-surface);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.global-nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--text-secondary);
+  transition: all var(--duration-fast);
+  white-space: nowrap;
+}
+
+.global-nav-tab.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ============================================================
+   MOVIE HERO BANNER
+   ============================================================ */
+.movie-hero-banner {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  border-radius: 20px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  padding: 36px;
+  margin-bottom: 40px;
+  border: 1px solid var(--border);
+}
+
+.movie-hero-content {
+  max-width: 560px;
+  z-index: 1;
+}
+
+.movie-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.movie-hero-title {
+  font-size: 2.3rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+.movie-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.movie-hero-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.movie-hero-year {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.movie-hero-overview {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.movie-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform var(--duration-fast);
+}
+
+.movie-hero-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   VOD & SERIES GRIDS
+   ============================================================ */
+.vod-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+/* ============================================================
+   VOD DETAIL PAGES (MOVIE & SERIES DETAILS)
+   ============================================================ */
+.vod-backdrop-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60vh;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.15;
+  z-index: 0;
+  mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+}
+
+.vod-detail-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 36px;
+  align-items: start;
+}
+
+.vod-poster-box {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.vod-info-box {
+  min-width: 0;
+}
+
+.vod-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+
+.vod-meta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.vod-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.vod-year {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.vod-synopsis-box {
+  background: var(--bg-surface);
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+/* ============================================================
+   VOD PLAYER HEADER & CONTROLS OVERLAY
+   ============================================================ */
+.vod-player-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 18px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  z-index: 10;
+}
+
+.vod-player-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.vod-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: #fff;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.vod-title-container {
+  min-width: 0;
+}
+
+.vod-now-playing-label {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.vod-player-title {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.vod-season-pill {
+  background: var(--accent);
+  color: var(--text-inverse);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.vod-player-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.vod-server-switcher {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0,0,0,0.6);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.vod-server-pill-btn {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  white-space: nowrap;
+}
+
+.vod-server-pill-btn.active {
+  background: var(--accent);
+  color: #000;
+}
+
+.vod-next-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.vod-fullscreen-btn {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   EPISODE SELECTOR
+   ============================================================ */
+.season-tabs-scroll {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.season-tabs-scroll::-webkit-scrollbar { display: none; }
+
+.season-tab-btn {
+  padding: 7px 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--duration-fast);
+}
+
+.season-tab-btn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--text-inverse);
+}
+
+.episode-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.episode-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  min-width: 0;
+}
+
+.episode-card.active {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+}
+
+.episode-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.episode-card.active .episode-badge {
+  background: var(--accent);
+  color: var(--text-inverse);
+}
+
+.episode-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.episode-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   RESPONSIVE MEDIA QUERIES (TABLETS & PHONES)
+   ============================================================ */
+@media (max-width: 900px) {
+  .vod-detail-grid {
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+  }
+  .vod-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+}
+
 @media (max-width: 768px) {
-  .header-content { height: 48px; gap: 12px; }
-  .header-search-input { width: 180px; height: 32px; font-size: 0.8rem; }
-  .header-search-input:focus { width: 220px; }
-  .nav-links-menu { gap: 0; }
-  .nav-link-btn { padding: 4px 8px; font-size: 0.78rem; }
-  .nav-link-btn span { display: none; }
-  .channel-card { min-width: 200px; padding: 12px; }
+  .container {
+    padding: 0 14px;
+  }
+  .header-content {
+    height: auto;
+    gap: 10px;
+    padding: 8px 0;
+  }
+  .header-search-input {
+    width: 100% !important;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+  .nav-links-menu {
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-links-menu::-webkit-scrollbar { display: none; }
+  .nav-link-btn {
+    padding: 5px 10px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+  .nav-link-btn span {
+    display: inline;
+  }
+  .hero-billboard {
+    min-height: 320px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+  }
+  .hero-container {
+    min-height: 320px;
+  }
+  .hero-title {
+    font-size: 1.8rem;
+  }
+  .movie-hero-banner {
+    min-height: 300px;
+    padding: 22px;
+    margin-bottom: 28px;
+    border-radius: 16px;
+  }
+  .movie-hero-title {
+    font-size: 1.7rem;
+  }
+  .vod-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .vod-poster-box {
+    max-width: 180px;
+    margin: 0 auto;
+  }
+  .vod-title {
+    font-size: 1.6rem;
+    text-align: center;
+  }
+  .vod-meta {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .global-nav-container {
+    padding: 8px 12px;
+  }
+  .logo-icon-box {
+    width: 28px;
+    height: 28px;
+  }
+  .logo-text {
+    font-size: 1.05rem;
+  }
+  .global-nav-tabs {
+    gap: 3px;
+    padding: 3px;
+    border-radius: 10px;
+  }
+  .global-nav-tab {
+    padding: 6px 9px;
+    font-size: 0.78rem;
+    gap: 4px;
+  }
+  .channels-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .channel-card {
+    min-width: 140px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  .card-logo-container {
+    width: 32px;
+    height: 32px;
+  }
+  .card-title {
+    font-size: 0.82rem;
+  }
+  .card-meta {
+    font-size: 0.7rem;
+  }
+  .badge {
+    padding: 2px 6px;
+    font-size: 0.65rem;
+  }
+  .vod-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .episode-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .vod-player-header {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .vod-now-playing-label {
+    display: none;
+  }
+  .vod-player-title {
+    font-size: 0.82rem;
+    max-width: 120px;
+  }
+  .vod-back-btn,
+  .vod-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+  }
+  .vod-server-pill-btn {
+    padding: 2px 6px;
+    font-size: 0.68rem;
+  }
 }
 
 @media (max-width: 480px) {
-  .hero-billboard { min-height: 260px; }
-  .hero-container { min-height: 260px; }
-  .hero-title { font-size: 1.6rem; }
-  .hero-actions { flex-direction: column; align-items: flex-start; }
+  .hero-billboard {
+    min-height: 260px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+  }
+  .hero-container {
+    min-height: 260px;
+  }
+  .hero-title {
+    font-size: 1.4rem;
+  }
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .hero-btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+  .movie-hero-banner {
+    min-height: 250px;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  .movie-hero-title {
+    font-size: 1.3rem;
+  }
+  .movie-hero-overview {
+    -webkit-line-clamp: 2;
+    font-size: 0.82rem;
+  }
+  .movie-hero-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 9px;
+    font-size: 0.85rem;
+  }
+  .global-nav-tab .global-nav-label {
+    display: none;
+  }
+  .global-nav-tab {
+    padding: 6px 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .channels-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .vod-player-title {
+    max-width: 80px;
+  }
 }
 
 /* ============================================================

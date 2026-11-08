@@ -18,6 +18,7 @@ function normalizeMeta(m: any): ITMDBMovie {
     overview: m.description || '',
     release_date: m.releaseInfo || m.year || '',
     vote_average: m.imdbRating ? parseFloat(m.imdbRating) : 0,
+    tmdbId: m.moviedb_id || m.tmdb_id || undefined,
   };
 }
 
@@ -121,6 +122,7 @@ export async function getMovieDetails(id: string): Promise<ITMDBMovie | null> {
       rating: m.imdbRating ? parseFloat(m.imdbRating) : 0,
       genres: Array.isArray(m.genres) ? m.genres : [],
       type: 'movie',
+      tmdbId: m.moviedb_id || m.tmdb_id || undefined,
     };
 
     // Record discovered movie in MongoDB

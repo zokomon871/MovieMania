@@ -1,36 +1,37 @@
 # MovieMania 🎬 📺
 
-> **MovieMania** is a unified, high-performance web streaming platform combining **Global Live IPTV**, **VOD Blockbuster Movies**, and **TV Series & Shows** in a single, modern Next.js 14 application.
+<p align="center">
+  <b>A unified, high-performance streaming platform combining Global Live IPTV, VOD Blockbuster Movies, and TV Series in a modern Next.js 14 web application.</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js 14" />
+  <img src="https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/MongoDB-Atlas%20%2F%20Local-green?style=for-the-badge&logo=mongodb" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Redis-Upstash%20%2F%20Local-red?style=for-the-badge&logo=redis" alt="Redis" />
+  <img src="https://img.shields.io/badge/HLS.js-Live%20Streaming-orange?style=for-the-badge" alt="Hls.js" />
+  <img src="https://img.shields.io/badge/Docker-Compose%20Ready-2496ED?style=for-the-badge&logo=docker" alt="Docker" />
+</p>
 
 ---
 
-## 🌟 Features
+## 🌟 Highlights & Features
 
-### 📺 Live IPTV Channels
-- **Global Channel Directory:** Browse thousands of free live TV channels across sports, news, entertainment, movies, and kids, powered by the open [iptv-org](https://github.com/iptv-org/iptv) database.
-- **Custom HLS Player:** Low-latency playback powered by `hls.js` with adaptive bitrate streaming (Auto/1080p/720p/480p/360p), aspect ratio toggling (`Fit`, `Zoom`, `Stretch`), picture-in-picture, and server-side CORS proxy fallback (`/api/proxy`).
-- **Interactive Keyboard Shortcuts:** Control playback with standard media keys (`Space`, `F` for fullscreen, `M` for mute, `↑`/`↓` for volume, `Esc` to close).
+### 📺 1. Global Live IPTV
+- **Massive Directory:** Browse thousands of free live TV channels across sports, news, entertainment, movies, and kids, powered by the open [iptv-org](https://github.com/iptv-org/iptv) catalog.
+- **Custom HLS Player:** Low-latency live video playback powered by `hls.js` with adaptive bitrate streaming (Auto / 1080p / 720p / 480p / 360p), aspect ratio toggling (`Fit`, `Zoom`, `Stretch`), picture-in-picture, and server-side CORS proxy fallback (`/api/proxy`).
+- **Stream Watchdog & Auto-Prune:** Background health checker pings `.m3u8` streams using byte-range headers (`Range: bytes=0-100`) to immediately detect 404s, 403 geo-blocks, or timeouts (> 3s), keeping your channel grid 100% active.
 
-### 🎬 VOD Cinema (Movies)
-- **Extensive Catalog:** Popular, trending, and genre-balanced movie browsing across 12 distinct genres (Action, Adventure, Comedy, Sci-Fi, Horror, Thriller, etc.).
-- **HD Video Streaming:** On-demand movie playback powered by VidSrc embeds using IMDb identifiers.
-- **Just-In-Time (JIT) Ingestion:** If a user searches for a movie not yet stored in MongoDB, the backend automatically fetches metadata from Cinemeta, serves it immediately, and saves it to MongoDB for instant future searches.
+### 🎬 2. VOD Cinema (Movies & TV Series)
+- **Extensive Catalog:** Popular, trending, and genre-categorized titles across 12 distinct genres (Action, Sci-Fi, Comedy, Horror, Drama, Animation, etc.).
+- **Dual Stream Servers:** Instant 1-click switcher between **VidSrc** and **VidLink** (`vidlink.pro`) directly within the video player header, with client-side preference remembered in `localStorage`.
+- **TV Series Navigation:** Clean multi-season and episode picker with automatic next-episode sequencing and canonical numbering.
+- **Just-In-Time (JIT) Ingestion:** If a movie or series isn't yet stored in MongoDB when a user searches for it, the backend fetches metadata from Cinemeta on the fly, saves it to MongoDB, and returns it immediately for zero-lag subsequent queries.
 
-### 📺 TV Series & Shows
-- **Multi-Season Navigation:** Complete season and episode picker with automatic active episode detection and next-episode playback.
-- **Clean Canonical Numbering:** Special/short episode deduplication ensures that Season 1 cleanly starts with Episode 1 without duplicate episode cards.
-- **Rich Media Details:** Poster artwork, high-resolution backdrops, IMDb ratings, release years, and detailed synopses.
-
-### 🏥 Automated "Stream-Health" Filter
-- **3-Second Watchdog:** Programmatically pings stream URLs (`.m3u8` / `.mpd`) using fast byte-range headers (`Range: bytes=0-100`).
-- **Dead Link Detection:** Automatically detects 404 (Not Found), 403 Forbidden (geo-blocked), server errors (5xx), and timeouts (> 3 seconds).
-- **Auto-Dropping Bad Streams:** Channels marked offline are automatically dropped from the active UI and search filters.
-- **Real-Time Client Feedback:** If a stream fails during browser playback, the player hook reports the failure to `/api/channels/health` to mark the stream offline on the server.
-
-### ⚡ Performance & Caching
-- **Redis Cache Layer:** In-memory caching for trending lists, category counts, country aggregations, and stream health pings with automated TTLs.
-- **MongoDB Text Search:** Indexed search across titles, alternative names, genres, and overviews.
-- **Clean Architecture:** Strict separation between server and client boundaries with pure JSON serialization.
+### ⚡ 3. High-Performance Caching & Architecture
+- **In-Memory Redis Layer:** Redis caching across popular titles, trending lists, channel categories, and stream health status with automated 5-hour TTL (`18,000s`).
+- **Graceful Fallback:** Automatically bypasses Redis if offline without interrupting database queries or user playback.
+- **Full Text Search:** MongoDB text indexing across titles, alternative names, descriptions, and genres.
 
 ---
 
@@ -38,13 +39,13 @@
 
 | Layer | Technologies |
 | :--- | :--- |
-| **Framework** | [Next.js 14](https://nextjs.org/) (App Router, Server Components & Server Actions) |
-| **Language** | [TypeScript](https://www.typescriptlang.org/) (Strict typing across all services) |
-| **Database** | [MongoDB](https://www.mongodb.com/) (Native driver, text indexing, aggregation pipelines) |
-| **Cache** | [Redis](https://redis.io/) (`ioredis` with graceful offline bypass) |
-| **Video Engine** | [Hls.js](https://github.com/video-dev/hls.js/) (Live HLS) & VidSrc Embeds (VOD) |
-| **Icons & UI** | [Lucide React](https://lucide.dev/), pure responsive dark-theme CSS |
-| **Containerization** | [Docker Compose](https://docs.docker.com/compose/) (MongoDB 4.4 & Redis 7 Alpine) |
+| **Frontend & Framework** | [Next.js 14](https://nextjs.org/) (App Router, Server & Client Components) |
+| **Language** | [TypeScript 5](https://www.typescriptlang.org/) (Strict typing across models and API routes) |
+| **Database** | [MongoDB](https://www.mongodb.com/) (Native driver, text indexes, aggregation pipelines) |
+| **Cache** | [Redis](https://redis.io/) (`ioredis` client with cloud TLS & localhost support) |
+| **Video Engine** | [Hls.js](https://github.com/video-dev/hls.js/) (Live HLS) & VidSrc / VidLink Embeds (VOD) |
+| **Icons & Styling** | [Lucide React](https://lucide.dev/), pure dark-mode responsive modern CSS |
+| **Local Containerization** | [Docker Compose](https://docs.docker.com/compose/) (MongoDB 4.4 & Redis 7 Alpine) |
 
 ---
 
@@ -52,37 +53,26 @@
 
 ```text
 MovieMania/
-├── docker-compose.yml          # MongoDB (port 27019) & Redis (port 6389) containers
-├── package.json                # Project dependencies and operational scripts
+├── docker-compose.yml          # Local MongoDB (27019) & Redis (6389) containers
+├── package.json                # Project dependencies and production scripts
 ├── tsconfig.json               # TypeScript compiler configuration
-├── next.config.mjs             # Next.js configuration and image domains
-├── scripts/
-│   ├── sync.mjs                # Multi-source ingestion script (Channels, Movies, Series)
-│   ├── health-check.mjs        # Parallel stream health verification & prune script
-│   └── warm.mjs                # Route pre-warming script for development
+├── next.config.mjs             # Next.js image domain & compiler settings
+├── .env.example                # Localhost environment configuration template
 └── src/
     ├── app/                    # Next.js 14 App Router
     │   ├── page.tsx            # Live TV Home page with Channel Billboard & Grid
-    │   ├── movies/             # VOD Cinema directory & Movie player routes
-    │   │   ├── page.tsx
-    │   │   └── [id]/page.tsx
-    │   ├── series/             # TV Series catalog & Episode player routes
-    │   │   ├── page.tsx
-    │   │   └── [id]/page.tsx
-    │   ├── favorites/          # Saved channels & bookmarks
-    │   └── api/                # API endpoints
-    │       ├── channels/       # Channel pagination, search & health ping
-    │       ├── movies/         # Movie search, trending & streaming metadata
-    │       ├── series/         # TV series search & metadata
-    │       └── proxy/          # Server-side HLS CORS bypass proxy
-    ├── components/             # Modular React components
-    │   ├── channels/           # Channel grid, row, billboard, and filter bars
-    │   ├── movies/             # Movie cards, hero banners, and explorers
-    │   ├── series/             # Series cards, episode selectors, and series views
-    │   ├── player/             # HLS Live player, VOD player, and Series player
-    │   └── layout/             # Top navbar, search header, and category pills
-    ├── hooks/                  # Custom React hooks (useHlsPlayer, useChannels, etc.)
-    └── lib/                    # Core backend services, database connectors, and types
+    │   ├── movies/             # VOD Movie catalog & single movie player route
+    │   ├── series/             # TV Series catalog & episode player route
+    │   ├── favorites/          # Bookmarked & favorite channels
+    │   └── api/                # Production API endpoints (channels, movies, series, proxy)
+    ├── components/             # Reusable UI & Player components
+    │   ├── channels/           # Channel grid, rows, cards, and billboard
+    │   ├── movies/             # Movie hero banners, explorers, and cards
+    │   ├── series/             # TV series explorer and episode selectors
+    │   ├── player/             # HLS Live TV Player, Movie Player & Series Player
+    │   └── layout/             # Top navbar, search header, and category filters
+    ├── hooks/                  # Custom React hooks (useHlsPlayer, useFavorites, etc.)
+    └── lib/                    # Database clients (Mongo, Redis), services, and types
 ```
 
 ---
@@ -90,34 +80,46 @@ MovieMania/
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
-Ensure you have the following installed on your machine:
-* [Node.js](https://nodejs.org/) (v18.17 or higher recommended)
-* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for local MongoDB & Redis services)
+- [Node.js](https://nodejs.org/) (v18.17 or higher recommended)
+- [npm](https://www.npmjs.com/) or [pnpm](https://pnpm.io/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) *(if running databases locally)*
 
 ---
 
-### 2. Start Local Databases (Docker)
-Start the background MongoDB and Redis containers:
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env.local`:
+
+```bash
+cp .env.example .env.local
+```
+
+#### For Localhost Development (Default in `.env.example`):
+```env
+# MongoDB Connection (Local Docker container on port 27019)
+MONGODB_URI=mongodb://localhost:27019/moviemania
+
+# Redis Cache (Local Docker container on port 6389)
+REDIS_URL=redis://localhost:6389
+
+# Port (Optional, defaults to 3000)
+PORT=3000
+```
+
+#### For Cloud Deployment (MongoDB Atlas & Upstash Redis):
+```env
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxxx.mongodb.net/moviemania?retryWrites=true&w=majority
+REDIS_URL=rediss://default:<token>@<endpoint>.upstash.io:6379
+```
+
+---
+
+### 3. Start Local Databases (Optional if using Cloud)
+If you are developing locally with Docker:
 ```bash
 docker-compose up -d
 ```
-* **MongoDB:** `localhost:27019` (database: `streamhub`)
+* **MongoDB:** `localhost:27019`
 * **Redis:** `localhost:6389`
-
----
-
-### 3. Environment Variables
-Create a `.env.local` file in the root directory (or copy from `.env.example`):
-```env
-# MongoDB Connection (mapped to port 27019 in docker-compose)
-MONGODB_URI=mongodb://localhost:27019/streamhub
-
-# Redis Connection (mapped to port 6389 in docker-compose)
-REDIS_URL=redis://localhost:6389
-
-# App Port (Optional)
-PORT=3000
-```
 
 ---
 
@@ -128,37 +130,7 @@ npm install
 
 ---
 
-### 5. Ingest Media Database
-Populate your database with channels, movies, and series:
-
-```bash
-# Sync all media (Channels, Movies across 12 genres, and TV Shows)
-npm run sync:all
-
-# Or sync specific categories individually:
-npm run sync:channels    # Live TV channels
-npm run sync:movies      # Movies across all 12 genres
-npm run sync:series      # TV series across all genres
-```
-
----
-
-### 6. Run Automated Stream Health Check (Optional)
-Filter out broken, 404, or geo-blocked stream links:
-```bash
-# Fast test: verifies 100 channels with 20 parallel workers
-npm run health:fast
-
-# Full health check: marks offline streams across the whole database
-npm run health:check
-
-# Prune: permanently deletes dead links from MongoDB
-npm run health:prune
-```
-
----
-
-### 7. Run the Application
+### 5. Launch the Application
 
 #### Development Mode:
 ```bash
@@ -166,51 +138,43 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-#### Production Mode (Recommended for fastest zero-compile browsing):
+#### Production Build & Run:
 ```bash
-npm run serve
+npm run build
+npm start
 ```
-*(Runs `next build` once to pre-compile all routes, then serves the application instantly).*
 
 ---
 
 ## ⌨️ Player Keyboard Shortcuts
 
-When the video player is open, you can control playback using the keyboard:
+Control playback seamlessly using standard hotkeys:
 
-| Shortcut | Action |
-| :--- | :--- |
-| `Space` / `K` | Toggle Play / Pause |
-| `F` | Toggle Fullscreen |
-| `M` | Toggle Mute |
-| `↑` / `↓` | Volume Up / Down (5% increments) |
-| `←` / `→` | Seek backward / forward 10 seconds (VOD) |
-| `L` | Jump to Live Edge (Live Streams) |
-| `Esc` | Close video player |
+| Key | Action | Supported Players |
+| :--- | :--- | :--- |
+| `Space` / `K` | Toggle Play / Pause | Live TV, Movies, Series |
+| `F` | Toggle Fullscreen | Live TV, Movies, Series |
+| `M` | Toggle Audio Mute | Live TV |
+| `↑` / `↓` | Volume Up / Down (5% steps) | Live TV |
+| `←` / `→` | Seek backward / forward 10s | VOD Player |
+| `L` | Seek to Live Edge | Live TV |
+| `Esc` | Close player modal | Live TV, Movies, Series |
 
 ---
 
 ## 📜 Available NPM Scripts
 
-| Command | Description |
+| Command | Purpose |
 | :--- | :--- |
 | `npm run dev` | Starts the Next.js development server on port 3000. |
-| `npm run serve` | Compiles the production build and starts the production server. |
-| `npm run build` | Compiles all pages, runs TypeScript checks, and generates production bundles. |
-| `npm run warm` | Pre-pings all routes on a running dev server to compile pages ahead of time. |
-| `npm run sync:all` | Pulls channels, movies, and series into MongoDB with 100% deduplication. |
-| `npm run sync:channels` | Ingests live IPTV channels from iptv-org. |
-| `npm run sync:movies` | Fetches movies evenly distributed across 12 genres from Cinemeta. |
-| `npm run sync:series` | Ingests TV series catalog evenly across all genres. |
-| `npm run health:fast` | Runs rapid stream health checks against 100 channels. |
-| `npm run health:check` | Verifies stream health for all channels in MongoDB and updates online status. |
-| `npm run health:prune` | Tests all channels and removes broken or geo-blocked streams from MongoDB. |
+| `npm run build` | Builds the optimized production application with TypeScript verification. |
+| `npm start` | Runs the compiled Next.js production server. |
+| `npm run lint` | Runs ESLint checks across the codebase. |
 
 ---
 
 ## ⚖️ Disclaimer
 
-* **IPTV Streams:** All live channels are sourced from publicly available streams indexed by the [iptv-org](https://github.com/iptv-org/iptv) project. MovieMania does not host, broadcast, or store any proprietary video content.
-* **VOD Metadata:** Movie and TV metadata is retrieved via open APIs ([Cinemeta](https://v3-cinemeta.strem.io)). Video playback is rendered via external embeds.
-* This project is created for educational and personal research purposes.
-
+- **Live IPTV:** All live channels are sourced from publicly accessible streams indexed by the open [iptv-org](https://github.com/iptv-org/iptv) project. MovieMania does not broadcast, host, or control any proprietary video streams.
+- **VOD Content:** Movie and TV metadata is retrieved via open APIs ([Cinemeta](https://v3-cinemeta.strem.io)). Streaming playback is rendered through external third-party embeds (VidSrc and VidLink).
+- This project is developed strictly for educational and personal research purposes.

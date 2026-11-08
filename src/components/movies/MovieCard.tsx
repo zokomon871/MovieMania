@@ -6,14 +6,28 @@ import { Star, Play } from 'lucide-react';
 import { ITMDBMovie } from '@/lib/types';
 import { getImageUrl } from '@/lib/mediaUtils';
 
-export function MovieCard({ movie }: { movie: ITMDBMovie }) {
+interface MovieCardProps {
+  movie: ITMDBMovie;
+  rank?: number;
+}
+
+export function MovieCard({ movie, rank }: MovieCardProps) {
   const poster = getImageUrl(movie.poster_path);
   const year = movie.release_date?.substring(0, 4) || '';
 
   return (
     <Link href={`/movies/${movie.id}`} className="movie-card-item" style={{ textDecoration: 'none' }}>
-      <div className="movie-poster-box" style={{ position: 'relative', width: '100%', aspectRatio: '2/3', borderRadius: '12px', overflow: 'hidden', background: 'var(--bg-surface)' }}>
-        <img src={poster} alt={movie.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <div className="movie-poster-box">
+        <img src={poster} alt={movie.title} loading="lazy" />
+
+        {rank !== undefined && (
+          <div className="media-rank-badge">
+            #{rank}
+          </div>
+        )}
+
+        <div className="media-hd-pill">HD</div>
+
         <div className="movie-card-overlay">
           <div className="movie-play-btn">
             <Play size={20} fill="#fff" />
@@ -22,12 +36,12 @@ export function MovieCard({ movie }: { movie: ITMDBMovie }) {
       </div>
 
       <div style={{ marginTop: '8px' }}>
-        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <h4 className="media-card-title" title={movie.title}>
           {movie.title}
         </h4>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+        <div className="media-card-meta">
           <span>{year}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--accent)', fontWeight: 600 }}>
+          <span className="media-card-rating">
             <Star size={12} fill="var(--accent)" />
             {movie.vote_average ? movie.vote_average.toFixed(1) : 'NR'}
           </span>
@@ -36,5 +50,5 @@ export function MovieCard({ movie }: { movie: ITMDBMovie }) {
     </Link>
   );
 }
-export default MovieCard;
 
+export default MovieCard;

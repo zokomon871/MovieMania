@@ -9,7 +9,7 @@ function toPlain(d: any): ISeries {
     id: d.id, title: d.title, year: d.year || '', overview: d.overview || '',
     poster: d.poster || null, backdrop: d.backdrop || null, rating: d.rating || 0,
     genres: Array.isArray(d.genres) ? d.genres : [], seasonsCount: d.seasonsCount || 1,
-    episodes: Array.isArray(d.episodes) ? d.episodes : [],
+    episodes: Array.isArray(d.episodes) ? d.episodes : [], tmdbId: d.tmdbId || d.moviedb_id,
   };
 }
 
@@ -28,7 +28,7 @@ export async function getTrendingSeriesFromDb(limit = 20): Promise<ISeries[]> {
   try {
     const col = await getSeriesCollection();
     const docs = (await col.find({}).sort({ rating: -1 }).limit(limit).toArray()).map(toPlain);
-    if (docs.length > 0) await setCachedJson(`series:trending:${limit}`, docs, 600);
+    if (docs.length > 0) await setCachedJson(`series:trending:${limit}`, docs, 18000);
     return docs;
   } catch { return []; }
 }
@@ -38,7 +38,7 @@ export async function getPopularSeriesFromDb(page = 1, limit = 20): Promise<ISer
   try {
     const col = await getSeriesCollection();
     const docs = (await col.find({}).sort({ year: -1, rating: -1 }).skip(Math.max(0, (page - 1) * limit)).limit(limit).toArray()).map(toPlain);
-    if (docs.length > 0) await setCachedJson(`series:pop:${page}:${limit}`, docs, 600);
+    if (docs.length > 0) await setCachedJson(`series:pop:${page}:${limit}`, docs, 18000);
     return docs;
   } catch { return []; }
 }
@@ -61,7 +61,7 @@ export async function getSeriesByIdFromDb(id: string): Promise<ISeries | null> {
     const doc = await col.findOne({ id });
     if (!doc) return null;
     const plain = toPlain(doc);
-    await setCachedJson(`series:${id}`, plain, 3600);
+    await setCachedJson(`series:${id}`, plain, 18000);
     return plain;
   } catch { return null; }
 }
@@ -115,7 +115,7 @@ export async function fetchSeriesDetails(id: string): Promise<ISeries | null> {
       backdrop: m.background || m.poster || null, rating: m.imdbRating ? parseFloat(m.imdbRating) : 0,
       genres: Array.isArray(m.genres) ? m.genres : [],
       seasonsCount: episodes.reduce((max, ep) => Math.max(max, ep.season), 1),
-      episodes,
+      episodes, tmdbId: m.moviedb_id || m.tmdb_id || undefined,
     };
 
     await saveDiscoveredSeriesToDb([seriesDoc]);

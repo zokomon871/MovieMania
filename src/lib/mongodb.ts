@@ -33,7 +33,7 @@ export async function getMongoClient(): Promise<MongoClient> {
 
 export async function getDb(): Promise<Db> {
   const mongoClient = await getMongoClient();
-  return mongoClient.db('streamhub');
+  return mongoClient.db();
 }
 
 export async function getChannelsCollection(): Promise<Collection<IChannel>> {

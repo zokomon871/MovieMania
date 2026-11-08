@@ -2,10 +2,11 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { Maximize, Minimize, SkipForward } from 'lucide-react';
-import { getSeriesStreamEmbedUrl } from '@/lib/mediaUtils';
+import { VODServer, getSeriesStreamUrls } from '@/lib/mediaUtils';
 
 interface Props {
   seriesId: string;
+  tmdbId?: string | number;
   title: string;
   season: number;
   episode: number;
@@ -15,6 +16,7 @@ interface Props {
 
 export function SeriesVODPlayer({
   seriesId,
+  tmdbId,
   title,
   season,
   episode,
@@ -23,14 +25,26 @@ export function SeriesVODPlayer({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const streamUrl = getSeriesStreamEmbedUrl(seriesId, season, episode);
+  const [server, setServer] = useState<VODServer>('vidsrc');
+
+  const streamUrls = getSeriesStreamUrls(seriesId, season, episode, tmdbId);
+  const activeUrl = streamUrls[server];
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('moviemania_vod_server') as VODServer;
+      if (saved && (saved === 'vidsrc' || saved === 'vidlink')) setServer(saved);
+    } catch {}
+  }, []);
+
+  const handleSwitchServer = (s: VODServer) => {
+    setServer(s);
+    try { localStorage.setItem('moviemania_vod_server', s); } catch {}
+  };
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen().catch(console.error);
-    } else {
-      document.exitFullscreen().catch(console.error);
-    }
+    if (!document.fullscreenElement) containerRef.current?.requestFullscreen().catch(console.error);
+    else document.exitFullscreen().catch(console.error);
   };
 
   useEffect(() => {
@@ -44,84 +58,54 @@ export function SeriesVODPlayer({
       className={`cinema-player-wrapper ${isFullscreen ? 'fullscreen' : ''}`}
       ref={containerRef}
       style={{
-        position: 'relative',
-        width: '100%',
-        aspectRatio: '16/9',
-        background: '#000',
-        borderRadius: isFullscreen ? '0' : '16px',
-        overflow: 'hidden',
+        position: 'relative', width: '100%', aspectRatio: '16/9', background: '#000',
+        borderRadius: isFullscreen ? '0' : '16px', overflow: 'hidden',
         border: isFullscreen ? 'none' : '1px solid var(--border-hover)',
       }}
     >
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          padding: '12px 18px',
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          zIndex: 10,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ color: 'var(--accent)', fontSize: '0.75rem', fontWeight: 800 }}>NOW STREAMING</div>
-          <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.4)' }} />
-          <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600 }}>{title}</div>
-          <div style={{ background: 'var(--accent)', color: 'var(--text-inverse)', fontSize: '0.72rem', fontWeight: 800, padding: '2px 6px', borderRadius: '4px' }}>
+      <div className="vod-player-header">
+        <div className="vod-player-header-left">
+          <div className="vod-now-playing-label">STREAMING</div>
+          <div className="vod-player-title" title={title}>{title}</div>
+          <span className="vod-season-pill">
             S{season}:E{episode}
-          </div>
+          </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="vod-player-header-right">
+          <div className="vod-server-switcher">
+            {(['vidsrc', 'vidlink'] as VODServer[]).map((s) => (
+              <button
+                key={s}
+                onClick={() => handleSwitchServer(s)}
+                className={`vod-server-pill-btn ${server === s ? 'active' : ''}`}
+              >
+                {s === 'vidsrc' ? '⚡ VidSrc' : '🌐 VidLink'}
+              </button>
+            ))}
+          </div>
+
           {hasNextEpisode && onNextEpisode && (
-            <button
-              onClick={onNextEpisode}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '5px 12px',
-                borderRadius: '6px',
-                background: 'rgba(255,255,255,0.12)',
-                border: 'none',
-                color: '#fff',
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              <SkipForward size={13} /> Next Episode
+            <button onClick={onNextEpisode} className="vod-next-btn">
+              <SkipForward size={13} /> <span>Next</span>
             </button>
           )}
 
-          <button
-            onClick={toggleFullscreen}
-            style={{
-              background: 'rgba(255,255,255,0.12)',
-              border: 'none',
-              borderRadius: '6px',
-              color: '#fff',
-              padding: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-            }}
-          >
+          <button onClick={toggleFullscreen} className="vod-fullscreen-btn" title={isFullscreen ? 'Exit' : 'Fullscreen'}>
             {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
           </button>
         </div>
       </div>
 
       <iframe
-        src={streamUrl}
+        key={activeUrl}
+        src={activeUrl}
+        style={{ width: '100%', height: '100%', border: 'none' }}
         allowFullScreen
-        style={{ width: '100%', height: '100%', border: 'none', background: '#000' }}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allow="autoplay; fullscreen"
       />
     </div>
   );
 }
 
+export default SeriesVODPlayer;

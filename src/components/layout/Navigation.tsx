@@ -14,96 +14,52 @@ export function Navigation() {
 
   return (
     <nav className="global-nav">
-      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px' }}>
-        <Link href="/" className="logo-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <div style={{ background: 'var(--accent)', width: '34px', height: '34px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="container global-nav-container">
+        <Link href="/" className="logo-brand global-nav-logo">
+          <div className="logo-icon-box">
             <Play size={18} fill="#fff" color="#fff" style={{ marginLeft: '2px' }} />
           </div>
-          <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>
-            MOVIE<span style={{ color: 'var(--accent)' }}>MANIA</span>
+          <div className="logo-text">
+            MOVIE<span className="logo-accent">MANIA</span>
           </div>
         </Link>
 
-        <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-surface)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+        <div className="global-nav-tabs">
           <Link
             href="/"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              textDecoration: 'none',
-              background: isHome ? 'var(--accent)' : 'transparent',
-              color: isHome ? '#fff' : 'var(--text-secondary)',
-              transition: 'all 0.2s',
-            }}
+            className={`global-nav-tab ${isHome ? 'active' : ''}`}
           >
-            <Tv size={16} /> Live TV
+            <Tv size={16} />
+            <span className="global-nav-label">Live TV</span>
           </Link>
 
           <Link
             href="/movies"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              textDecoration: 'none',
-              background: isMovies ? 'var(--accent)' : 'transparent',
-              color: isMovies ? '#fff' : 'var(--text-secondary)',
-              transition: 'all 0.2s',
-            }}
+            className={`global-nav-tab ${isMovies ? 'active' : ''}`}
           >
-            <Film size={16} /> Movies
+            <Film size={16} />
+            <span className="global-nav-label">Movies</span>
           </Link>
 
           <Link
             href="/series"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              textDecoration: 'none',
-              background: isSeries ? 'var(--accent)' : 'transparent',
-              color: isSeries ? '#fff' : 'var(--text-secondary)',
-              transition: 'all 0.2s',
-            }}
+            className={`global-nav-tab ${isSeries ? 'active' : ''}`}
           >
-            <Layers size={16} /> Series
+            <Layers size={16} />
+            <span className="global-nav-label">Series</span>
           </Link>
 
           <Link
             href="/favorites"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              textDecoration: 'none',
-              background: isFavorites ? 'var(--accent)' : 'transparent',
-              color: isFavorites ? '#fff' : 'var(--text-secondary)',
-              transition: 'all 0.2s',
-            }}
+            className={`global-nav-tab ${isFavorites ? 'active' : ''}`}
           >
-            <Star size={16} /> Bookmarks
+            <Star size={16} />
+            <span className="global-nav-label">Bookmarks</span>
           </Link>
         </div>
       </div>
     </nav>
   );
 }
-export default Navigation;
 
+export default Navigation;

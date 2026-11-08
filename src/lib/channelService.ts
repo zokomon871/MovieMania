@@ -49,7 +49,7 @@ export async function fetchChannelsService(params: IChannelFilterParams): Promis
     hasMore: page < totalPages,
   };
 
-  await setCachedJson(cacheKey, result, 300);
+  await setCachedJson(cacheKey, result, 18000);
   return result;
 }
 
@@ -73,7 +73,7 @@ export async function fetchCategoriesService(country?: string): Promise<ICategor
   );
 
   const categories = (await collection.aggregate<ICategory>(pipeline).toArray()) || [];
-  await setCachedJson(cacheKey, categories, 600);
+  await setCachedJson(cacheKey, categories, 18000);
   return categories;
 }
 
@@ -92,7 +92,7 @@ export async function fetchCountriesService(): Promise<ICountry[]> {
   ];
 
   const countries = (await collection.aggregate<ICountry>(pipeline).toArray()) || [];
-  await setCachedJson(cacheKey, countries, 600);
+  await setCachedJson(cacheKey, countries, 18000);
   return countries;
 }
 

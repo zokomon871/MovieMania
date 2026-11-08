@@ -1,9 +1,27 @@
-export function getStreamEmbedUrl(id: string | number): string {
-  return `https://vidsrc.mov/embed/movie/${id}`;
+export type VODServer = 'vidsrc' | 'vidlink';
+
+export function getMovieStreamUrls(id: string | number, tmdbId?: string | number): Record<VODServer, string> {
+  const vidId = tmdbId || id;
+  return {
+    vidsrc: `https://vidsrc.mov/embed/movie/${id}`,
+    vidlink: `https://vidlink.pro/movie/${vidId}?primaryColor=ffd200`,
+  };
 }
 
-export function getSeriesStreamEmbedUrl(id: string, season = 1, episode = 1): string {
-  return `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`;
+export function getSeriesStreamUrls(id: string, season = 1, episode = 1, tmdbId?: string | number): Record<VODServer, string> {
+  const vidId = tmdbId || id;
+  return {
+    vidsrc: `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
+    vidlink: `https://vidlink.pro/tv/${vidId}/${season}/${episode}?primaryColor=ffd200`,
+  };
+}
+
+export function getStreamEmbedUrl(id: string | number, server: VODServer = 'vidsrc', tmdbId?: string | number): string {
+  return getMovieStreamUrls(id, tmdbId)[server];
+}
+
+export function getSeriesStreamEmbedUrl(id: string, season = 1, episode = 1, server: VODServer = 'vidsrc', tmdbId?: string | number): string {
+  return getSeriesStreamUrls(id, season, episode, tmdbId)[server];
 }
 
 export function getImageUrl(path: string | null, size: 'w500' | 'original' = 'w500'): string {

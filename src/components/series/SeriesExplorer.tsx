@@ -91,7 +91,7 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
               onReset={handleReset}
             />
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '20px' }}>
+            <div className="vod-grid">
               {results.map((s) => (
                 <SeriesCard key={s.id} series={s} />
               ))}
@@ -104,7 +104,7 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '20px' }}>
               Trending Series
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '20px' }}>
+            <div className="vod-grid">
               {initialTrending.map((s) => (
                 <SeriesCard key={s.id} series={s} />
               ))}
@@ -115,7 +115,7 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '20px' }}>
               Popular TV Shows
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '20px' }}>
+            <div className="vod-grid">
               {initialPopular.map((s) => (
                 <SeriesCard key={s.id} series={s} />
               ))}

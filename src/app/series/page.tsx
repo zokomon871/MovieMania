@@ -21,7 +21,7 @@ export default async function SeriesPage() {
     <main style={{ minHeight: '100vh', paddingBottom: '100px' }}>
       <div className="container" style={{ paddingTop: '24px' }}>
         <div style={{ marginBottom: '20px' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#fff', marginBottom: '4px' }}>
+          <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: 900, color: '#fff', marginBottom: '4px' }}>
             TV Shows & Series
           </h1>
           <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', margin: 0 }}>

@@ -4,15 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { HeroBillboard } from '@/components/channels/HeroBillboard';
 import { FilterBar } from '@/components/channels/filters/FilterBar';
-import { ChannelRow } from '@/components/channels/ChannelRow';
 import { ChannelGrid } from '@/components/channels/ChannelGrid';
 import { Pagination } from '@/components/common/Pagination';
 import { VideoPlayer } from '@/components/player/VideoPlayer';
+import { HomeShowcase } from '@/components/home/HomeShowcase';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useOfflineChannels } from '@/hooks/useOfflineChannels';
 import { useChannels } from '@/hooks/useChannels';
 import { IChannel, ICategory, ICountry } from '@/lib/types';
-import { Trophy, Newspaper, Film, Sparkles } from 'lucide-react';
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -23,8 +22,6 @@ export default function HomePage() {
 
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [countries, setCountries] = useState<ICountry[]>([]);
-  const [sportsChannels, setSportsChannels] = useState<IChannel[]>([]);
-  const [newsChannels, setNewsChannels] = useState<IChannel[]>([]);
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { offlineChannels, markOffline, markOnline } = useOfflineChannels();
@@ -40,8 +37,6 @@ export default function HomePage() {
   useEffect(() => {
     fetch('/api/categories').then((r) => r.json()).then((d) => setCategories(d.categories || [])).catch(() => {});
     fetch('/api/countries').then((r) => r.json()).then((d) => setCountries(d.countries || [])).catch(() => {});
-    fetch('/api/channels?category=sports&limit=15').then((r) => r.json()).then((d) => setSportsChannels(d.channels || [])).catch(() => {});
-    fetch('/api/channels?category=news&limit=15').then((r) => r.json()).then((d) => setNewsChannels(d.channels || [])).catch(() => {});
   }, []);
 
   const isDefaultView = selectedCategory === 'all' && selectedCountry === 'ALL' && !searchQuery && !showFavoritesOnly;
@@ -68,42 +63,36 @@ export default function HomePage() {
       )}
 
       <div className="container" style={{ marginTop: isDefaultView ? '24px' : '40px' }}>
-        <FilterBar
-          categories={categories}
-          countries={countries}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-          selectedCountry={selectedCountry}
-          onSelectCountry={setSelectedCountry}
-          totalChannels={total}
-        />
-
         {isDefaultView && page === 1 && (
-          <>
-            <ChannelRow
-              title="Global Live Sports"
-              icon={<Trophy size={20} color="var(--accent)" />}
-              channels={sportsChannels}
-              selectedChannelId={selectedChannel?.id}
-              favorites={favorites}
-              offlineChannels={offlineChannels}
-              onSelectChannel={setSelectedChannel}
-              onToggleFavorite={toggleFavorite}
-            />
-            <ChannelRow
-              title="24/7 Global Breaking News"
-              icon={<Newspaper size={20} color="var(--info)" />}
-              channels={newsChannels}
-              selectedChannelId={selectedChannel?.id}
-              favorites={favorites}
-              offlineChannels={offlineChannels}
-              onSelectChannel={setSelectedChannel}
-              onToggleFavorite={toggleFavorite}
-            />
-          </>
+          <HomeShowcase
+            selectedChannelId={selectedChannel?.id}
+            favorites={favorites}
+            offlineChannels={offlineChannels}
+            onSelectChannel={setSelectedChannel}
+            onToggleFavorite={toggleFavorite}
+          />
         )}
 
-        <div style={{ marginTop: '36px' }}>
+        <div style={{ marginTop: isDefaultView ? '48px' : '0' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+              Live Television Directory
+            </h2>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              Explore and filter live global broadcasts across categories and countries.
+            </p>
+          </div>
+
+          <FilterBar
+            categories={categories}
+            countries={countries}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            selectedCountry={selectedCountry}
+            onSelectCountry={setSelectedCountry}
+            totalChannels={total}
+          />
+
           <ChannelGrid
             channels={channels}
             isLoading={isLoading}
@@ -137,4 +126,3 @@ export default function HomePage() {
     </main>
   );
 }
-
