@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "warm": "node scripts/warm.mjs",
+    "test:db": "node scripts/test-db.mjs",
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "next lint"

@@ -2,33 +2,33 @@ import { MongoClient, Db, Collection } from 'mongodb';
 import { IChannel, ICategory, ICountry, IMovie, ISeries } from './types';
 
 const uri = process.env.MONGODB_URI || 'mongodb://localhost:27019/streamhub';
-const options = {
-  maxPoolSize: 20,
-  minPoolSize: 5,
-  serverSelectionTimeoutMS: 5000,
-  connectTimeoutMS: 10000,
-};
 
-declare global {
-  // eslint-disable-next-line no-var
-  var _mongoClientPromise: Promise<MongoClient> | undefined;
-}
-
-let clientPromise: Promise<MongoClient>;
-
-if (process.env.NODE_ENV === 'development') {
-  if (!global._mongoClientPromise) {
-    const client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
-  }
-  clientPromise = global._mongoClientPromise;
-} else {
-  const client = new MongoClient(uri, options);
-  clientPromise = client.connect();
-}
+let cachedClient: MongoClient | null = null;
+let connectPromise: Promise<MongoClient> | null = null;
 
 export async function getMongoClient(): Promise<MongoClient> {
-  return clientPromise;
+  if (cachedClient) return cachedClient;
+  if (!connectPromise) {
+    const client = new MongoClient(uri, {
+      maxPoolSize: 20,
+      minPoolSize: 2,
+      serverSelectionTimeoutMS: 2500,
+      connectTimeoutMS: 3000,
+    });
+    connectPromise = client.connect()
+      .then((c) => {
+        cachedClient = c;
+        console.log('[MongoDB] ✅ Connected to MongoDB Atlas cluster successfully.');
+        return c;
+      })
+      .catch((err) => {
+        connectPromise = null;
+        cachedClient = null;
+        console.warn('[MongoDB] ⚠️ Could not connect to Atlas (IP not whitelisted or cluster unreachable). Using live fallback.');
+        throw err;
+      });
+  }
+  return connectPromise;
 }
 
 export async function getDb(): Promise<Db> {

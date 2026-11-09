@@ -116,7 +116,8 @@ export async function saveDiscoveredMoviesToDb(movies: IMovie[]): Promise<void> 
         },
       }));
     if (batch.length > 0) {
-      await col.bulkWrite(batch);
+      const res = await col.bulkWrite(batch);
+      console.log(`[Movies] 💾 Successfully cached/updated ${batch.length} movie(s) in MongoDB (${res.upsertedCount} new).`);
     }
   } catch (err) {
     console.warn('[MovieService] Save discovered movies error:', err);
