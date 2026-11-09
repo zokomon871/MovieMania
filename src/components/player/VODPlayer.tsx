@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Maximize, Minimize, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { VODServer, getMovieStreamUrls } from '@/lib/mediaUtils';
+import { enterFullscreenLandscape, exitFullscreenPortrait, isCurrentlyFullscreen } from '@/lib/fullscreenHelper';
 
 interface VODPlayerProps {
   tmdbId?: string | number;
@@ -31,15 +32,28 @@ export function VODPlayer({ tmdbId, imdbId, title }: VODPlayerProps) {
     try { localStorage.setItem('moviemania_vod_server', s); } catch {}
   };
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) containerRef.current?.requestFullscreen().catch(console.error);
-    else document.exitFullscreen().catch(console.error);
+  const toggleFullscreen = async () => {
+    if (!isCurrentlyFullscreen()) {
+      await enterFullscreenLandscape(containerRef.current);
+    } else {
+      await exitFullscreenPortrait();
+    }
   };
 
   useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const handleFullscreenChange = () => {
+      const fs = isCurrentlyFullscreen();
+      setIsFullscreen(fs);
+      if (!fs) {
+        try { window.screen?.orientation?.unlock?.(); } catch {}
+      }
+    };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
   }, []);
 
   return (
@@ -47,7 +61,10 @@ export function VODPlayer({ tmdbId, imdbId, title }: VODPlayerProps) {
       className={`cinema-player-wrapper ${isFullscreen ? 'fullscreen' : ''}`}
       ref={containerRef}
       style={{
-        position: 'relative', width: '100%', aspectRatio: '16/9', background: '#000',
+        position: 'relative', width: '100%',
+        height: isFullscreen ? '100%' : 'auto',
+        aspectRatio: isFullscreen ? 'auto' : '16/9',
+        background: '#000',
         borderRadius: isFullscreen ? '0' : '16px', overflow: 'hidden',
         border: isFullscreen ? 'none' : '1px solid var(--border-hover)',
       }}

@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Heart } from 'lucide-react';
+import { FooterCounter } from './FooterCounter';
 
 export function Footer() {
   return (
@@ -14,6 +15,8 @@ export function Footer() {
             Free live IPTV streams & Cinema VOD exploration platform.
           </p>
         </div>
+
+        <FooterCounter />
 
         <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
           <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Live TV</Link>

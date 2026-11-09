@@ -9,6 +9,7 @@ import { PlayerControls } from './PlayerControls';
 import { PlayerCenterOverlay } from './PlayerCenterOverlay';
 import { PlaylistDrawer } from './PlaylistDrawer';
 import { ObjectFit, FIT_LABEL, FIT_ORDER } from './SettingsMenu';
+import { enterFullscreenLandscape, exitFullscreenPortrait, isCurrentlyFullscreen } from '@/lib/fullscreenHelper';
 
 interface VideoPlayerProps {
   channel: IChannel | null;
@@ -124,9 +125,12 @@ function LivePlayer({
   const goPrev = useCallback(() => prevChannel && onSelectChannel(prevChannel), [prevChannel, onSelectChannel]);
   const goNext = useCallback(() => nextChannel && onSelectChannel(nextChannel), [nextChannel, onSelectChannel]);
 
-  const toggleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) rootRef.current?.requestFullscreen().catch(() => {});
-    else document.exitFullscreen().catch(() => {});
+  const toggleFullscreen = useCallback(async () => {
+    if (!isCurrentlyFullscreen()) {
+      await enterFullscreenLandscape(rootRef.current);
+    } else {
+      await exitFullscreenPortrait();
+    }
   }, []);
 
   const changeVolume = useCallback(
@@ -178,9 +182,19 @@ function LivePlayer({
   }, [volume, isMuted, videoRef]);
 
   useEffect(() => {
-    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const onChange = () => {
+      const fs = isCurrentlyFullscreen();
+      setIsFullscreen(fs);
+      if (!fs) {
+        try { window.screen?.orientation?.unlock?.(); } catch {}
+      }
+    };
     document.addEventListener('fullscreenchange', onChange);
-    return () => document.removeEventListener('fullscreenchange', onChange);
+    document.addEventListener('webkitfullscreenchange', onChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onChange);
+      document.removeEventListener('webkitfullscreenchange', onChange);
+    };
   }, []);
 
   usePlayerShortcuts({
