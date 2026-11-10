@@ -23,8 +23,8 @@ export function VODPlayer({ tmdbId, imdbId, title }: VODPlayerProps) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem('moviemania_vod_server') as string;
-      if (saved === 'autoembed' || saved === 'vidsrc' || saved === 'vidlink') setServer(saved as VODServer);
-      else if (saved === 'multiembed') setServer('autoembed');
+      if (saved === 'cinesrc' || saved === 'vidsrc' || saved === 'vidlink') setServer(saved as VODServer);
+      else if (saved === 'autoembed' || saved === 'multiembed') setServer('cinesrc');
     } catch {}
   }, []);
 
@@ -83,13 +83,13 @@ export function VODPlayer({ tmdbId, imdbId, title }: VODPlayerProps) {
 
         <div className="vod-player-header-right">
           <div className="vod-server-switcher">
-            {(['vidsrc', 'vidlink', 'autoembed'] as VODServer[]).map((s) => (
+            {(['vidsrc', 'vidlink', 'cinesrc'] as VODServer[]).map((s) => (
               <button
                 key={s}
                 onClick={() => handleSwitchServer(s)}
                 className={`vod-server-pill-btn ${server === s ? 'active' : ''}`}
               >
-                {s === 'vidsrc' ? '⚡ VidSrc' : s === 'vidlink' ? '🌐 VidLink' : '🌍 AutoEmbed'}
+                {s === 'vidsrc' ? '⚡ VidSrc' : s === 'vidlink' ? '🌐 VidLink' : '🎬 CineSrc'}
               </button>
             ))}
           </div>

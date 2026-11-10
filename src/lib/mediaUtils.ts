@@ -1,11 +1,11 @@
-export type VODServer = 'vidsrc' | 'vidlink' | 'autoembed';
+export type VODServer = 'vidsrc' | 'vidlink' | 'cinesrc';
 
 export function getMovieStreamUrls(id: string | number, tmdbId?: string | number): Record<VODServer, string> {
   const vidId = tmdbId || id;
   return {
     vidsrc: `https://vidsrc.mov/embed/movie/${id}`,
     vidlink: `https://vidlink.pro/movie/${vidId}?primaryColor=ffd200`,
-    autoembed: `https://player.autoembed.cc/embed/movie/${id}`,
+    cinesrc: `https://cinesrc.st/embed/movie/${id}`,
   };
 }
 
@@ -14,7 +14,7 @@ export function getSeriesStreamUrls(id: string, season = 1, episode = 1, tmdbId?
   return {
     vidsrc: `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
     vidlink: `https://vidlink.pro/tv/${vidId}/${season}/${episode}?primaryColor=ffd200`,
-    autoembed: `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`,
+    cinesrc: `https://cinesrc.st/embed/tv/${id}?s=${season}&e=${episode}`,
   };
 }
 
