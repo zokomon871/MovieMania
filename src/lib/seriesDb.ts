@@ -3,9 +3,10 @@ import { getCachedJson, setCachedJson } from './redis';
 import { ISeries } from './types';
 
 export const toPlain = (d: any): ISeries => ({
-  id: d.id, title: d.title, year: d.year || '', overview: d.overview || '',
-  poster: d.poster || null, backdrop: d.backdrop || null, rating: d.rating || 0,
-  genres: Array.isArray(d.genres) ? d.genres : [], seasonsCount: d.seasonsCount || 1,
+  id: String(d.id || ''), title: String(d.title || 'Untitled'), year: String(d.year || ''), overview: String(d.overview || ''),
+  poster: d.poster || null, backdrop: d.backdrop || null,
+  rating: d.rating ? (typeof d.rating === 'number' ? d.rating : parseFloat(d.rating) || 0) : 0,
+  genres: Array.isArray(d.genres) ? d.genres : [], seasonsCount: Number(d.seasonsCount) || 1,
   episodes: Array.isArray(d.episodes) ? d.episodes : [], tmdbId: d.tmdbId || d.moviedb_id,
 });
 

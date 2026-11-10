@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Star, Play } from 'lucide-react';
 import { ITMDBMovie } from '@/lib/types';
-import { getImageUrl } from '@/lib/mediaUtils';
+import { getImageUrl, formatRating, formatYear } from '@/lib/mediaUtils';
 
 interface MovieCardProps {
   movie: ITMDBMovie;
@@ -14,7 +14,7 @@ interface MovieCardProps {
 
 export function MovieCard({ movie, rank, onSelect }: MovieCardProps) {
   const poster = getImageUrl(movie.poster_path);
-  const year = movie.release_date?.substring(0, 4) || '';
+  const year = formatYear(movie.release_date);
 
   const handleClick = (e: React.MouseEvent) => {
     if (onSelect) {
@@ -51,7 +51,7 @@ export function MovieCard({ movie, rank, onSelect }: MovieCardProps) {
           <span>{year}</span>
           <span className="media-card-rating">
             <Star size={12} fill="var(--accent)" />
-            {movie.vote_average ? movie.vote_average.toFixed(1) : 'NR'}
+            {formatRating(movie.vote_average)}
           </span>
         </div>
       </div>

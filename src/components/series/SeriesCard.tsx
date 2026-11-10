@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Star, Play, Layers } from 'lucide-react';
 import { ISeries } from '@/lib/types';
-import { getImageUrl } from '@/lib/mediaUtils';
+import { getImageUrl, formatRating } from '@/lib/mediaUtils';
 
 interface SeriesCardProps {
   series: ISeries;
@@ -57,7 +57,7 @@ export function SeriesCard({ series, rank, onSelect }: SeriesCardProps) {
           <span>{series.year || 'Series'}</span>
           <span className="media-card-rating">
             <Star size={12} fill="var(--accent)" />
-            {series.rating ? series.rating.toFixed(1) : 'NR'}
+            {formatRating(series.rating)}
           </span>
         </div>
       </div>

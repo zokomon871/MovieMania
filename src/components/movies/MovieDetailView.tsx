@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Star, Calendar, Plus, Check, Share2, Sparkles, ShieldCheck } from 'lucide-react';
 import { ITMDBMovie } from '@/lib/types';
-import { getImageUrl } from '@/lib/mediaUtils';
+import { getImageUrl, formatRating, formatYear } from '@/lib/mediaUtils';
 import { VODPlayer } from '@/components/player/VODPlayer';
 import { MediaRow } from '@/components/common/MediaRow';
 import { MediaModal } from '@/components/common/MediaModal';
@@ -24,9 +24,10 @@ export function MovieDetailView({ movie, relatedMovies }: MovieDetailViewProps) 
   const inList = isFavorite(id);
   const backdrop = getImageUrl(movie.backdrop_path || movie.poster_path, 'original');
   const poster = getImageUrl(movie.poster_path);
-  const year = movie.release_date?.substring(0, 4) || 'N/A';
-  const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'NR';
-  const matchPercent = Math.min(99, Math.round((movie.vote_average || 7.5) * 10));
+  const year = formatYear(movie.release_date);
+  const rating = formatRating(movie.vote_average);
+  const numericRating = typeof movie.vote_average === 'number' ? movie.vote_average : parseFloat(String(movie.vote_average || 7.5)) || 7.5;
+  const matchPercent = Math.min(99, Math.round(numericRating * 10));
 
   const handleShare = () => {
     if (typeof window !== 'undefined') {

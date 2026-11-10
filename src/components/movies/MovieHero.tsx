@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Play, Star, Calendar, Info } from 'lucide-react';
 import { ITMDBMovie } from '@/lib/types';
-import { getImageUrl } from '@/lib/mediaUtils';
+import { getImageUrl, formatRating, formatYear } from '@/lib/mediaUtils';
 
 export function MovieHero({ movie }: { movie: ITMDBMovie }) {
   if (!movie) return null;
@@ -28,10 +28,10 @@ export function MovieHero({ movie }: { movie: ITMDBMovie }) {
 
         <div className="movie-hero-meta">
           <span className="movie-hero-rating">
-            <Star size={16} fill="var(--accent)" /> {movie.vote_average?.toFixed(1) || 'NR'}
+            <Star size={16} fill="var(--accent)" /> {formatRating(movie.vote_average)}
           </span>
           <span className="movie-hero-year">
-            <Calendar size={14} /> {movie.release_date?.substring(0, 4)}
+            <Calendar size={14} /> {formatYear(movie.release_date)}
           </span>
           <span className="media-modal-badge" style={{ marginLeft: '4px' }}>
             1080p FHD

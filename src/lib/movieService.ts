@@ -3,14 +3,15 @@ import { getCachedJson, setCachedJson } from './redis';
 import { ITMDBMovie, IMovie } from './types';
 
 function toITMDB(m: IMovie): ITMDBMovie {
+  const ratingNum = typeof m.rating === 'number' ? m.rating : parseFloat(String(m.rating || 0)) || 0;
   return {
     id: m.id,
     title: m.title,
     poster_path: m.poster || null,
     backdrop_path: m.backdrop || m.poster || null,
     overview: m.overview || '',
-    release_date: m.year || '',
-    vote_average: m.rating || 0,
+    release_date: String(m.year || ''),
+    vote_average: ratingNum,
     tmdbId: m.tmdbId,
   };
 }

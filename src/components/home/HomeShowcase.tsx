@@ -32,9 +32,9 @@ export function HomeShowcase({
   const [modalType, setModalType] = useState<'movie' | 'series'>('movie');
 
   useEffect(() => {
-    fetch('/api/movies/trending').then((r) => r.json()).then((d) => setTrendingMovies(d.movies || [])).catch(() => {});
-    fetch('/api/movies/popular').then((r) => r.json()).then((d) => setPopularMovies(d.movies || [])).catch(() => {});
-    fetch('/api/series/search?sortBy=rating&page=1').then((r) => r.json()).then((d) => setPopularSeries(d.results || [])).catch(() => {});
+    fetch('/api/movies/trending').then((r) => r.json()).then((d) => setTrendingMovies(d.results || d.movies || [])).catch(() => {});
+    fetch('/api/movies/popular').then((r) => r.json()).then((d) => setPopularMovies(d.results || d.movies || [])).catch(() => {});
+    fetch('/api/series/search?sortBy=rating&page=1').then((r) => r.json()).then((d) => setPopularSeries(d.results || d.series || [])).catch(() => {});
     fetch('/api/channels?category=sports&limit=15').then((r) => r.json()).then((d) => setSportsChannels(d.channels || [])).catch(() => {});
     fetch('/api/channels?category=news&limit=15').then((r) => r.json()).then((d) => setNewsChannels(d.channels || [])).catch(() => {});
   }, []);

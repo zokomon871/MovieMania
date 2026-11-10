@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { X, Play, Star, Calendar, Layers, Plus, Check } from 'lucide-react';
 import { ITMDBMovie, ISeries } from '@/lib/types';
-import { getImageUrl } from '@/lib/mediaUtils';
+import { getImageUrl, formatRating, formatYear } from '@/lib/mediaUtils';
 import { useFavorites } from '@/hooks/useFavorites';
 
 interface MediaModalProps {
@@ -39,15 +39,17 @@ export function MediaModal({ item, type, isOpen, onClose }: MediaModalProps) {
 
   const id = item.id.toString();
   const title = isMovie ? movie.title : series.title;
-  const rating = isMovie ? movie.vote_average : series.rating;
-  const year = isMovie ? movie.release_date?.substring(0, 4) : series.year;
+  const rawRating = isMovie ? movie.vote_average : series.rating;
+  const ratingText = formatRating(rawRating);
+  const numRating = typeof rawRating === 'number' ? rawRating : parseFloat(String(rawRating || 7.5)) || 7.5;
+  const yearText = formatYear(isMovie ? movie.release_date : series.year);
   const backdrop = isMovie
     ? getImageUrl(movie.backdrop_path || movie.poster_path, 'original')
     : getImageUrl(series.backdrop || series.poster || null, 'original');
   const overview = isMovie ? movie.overview : series.overview;
   const playHref = isMovie ? `/movies/${movie.id}` : `/series/${series.id}`;
   const isInList = isFavorite(id);
-  const matchPercent = Math.min(99, Math.round((rating || 7.5) * 10));
+  const matchPercent = Math.min(99, Math.round(numRating * 10));
 
   return (
     <div className="media-modal-backdrop" onClick={onClose}>
@@ -81,10 +83,10 @@ export function MediaModal({ item, type, isOpen, onClose }: MediaModalProps) {
           <div className="media-modal-meta-row">
             <span className="media-modal-match">{matchPercent}% Match</span>
             <div className="media-modal-rating">
-              <Star size={15} fill="var(--accent)" /> {rating ? rating.toFixed(1) : 'NR'}
+              <Star size={15} fill="var(--accent)" /> {ratingText}
             </div>
             <div className="media-modal-year">
-              <Calendar size={14} /> {year || 'N/A'}
+              <Calendar size={14} /> {yearText}
             </div>
             {!isMovie && series.seasonsCount && (
               <div className="media-modal-seasons">

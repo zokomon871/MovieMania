@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Star, Calendar, ArrowLeft } from 'lucide-react';
 import { fetchSeriesDetails } from '@/lib/seriesService';
-import { getImageUrl } from '@/lib/mediaUtils';
+import { getImageUrl, formatRating, formatYear } from '@/lib/mediaUtils';
 import { SeriesPlayerView } from '@/components/series/SeriesPlayerView';
 
 export default async function SeriesDetailPage({ params }: { params: { id: string } }) {
@@ -45,11 +45,11 @@ export default async function SeriesDetailPage({ params }: { params: { id: strin
             <div className="vod-meta">
               <div className="vod-rating">
                 <Star size={18} fill="var(--accent)" />
-                {series.rating ? series.rating.toFixed(1) : 'NR'} / 10
+                {formatRating(series.rating)} / 10
               </div>
               <div className="vod-year">
                 <Calendar size={16} />
-                {series.year}
+                {formatYear(series.year)}
               </div>
             </div>
 

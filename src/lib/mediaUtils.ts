@@ -31,3 +31,14 @@ export function getImageUrl(path: string | null, size: 'w500' | 'original' = 'w5
   if (path.startsWith('http')) return path;
   return `https://image.tmdb.org/t/p/${size}${path}`;
 }
+
+export function formatRating(val: unknown): string {
+  if (val === null || val === undefined || val === '') return 'NR';
+  const num = typeof val === 'number' ? val : parseFloat(String(val));
+  return !isNaN(num) && num > 0 ? num.toFixed(1) : 'NR';
+}
+
+export function formatYear(val: unknown): string {
+  if (!val) return 'N/A';
+  return String(val).substring(0, 4) || 'N/A';
+}
