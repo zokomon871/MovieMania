@@ -1,25 +1,11 @@
-export type VODServer = 'vidsrc' | 'vidlink' | 'multiembed';
-
-function getMultiEmbedMovieUrl(id: string | number, tmdbId?: string | number): string {
-  const isImdb = typeof id === 'string' && id.startsWith('tt');
-  return isImdb
-    ? `https://multiembed.mov/?video_id=${id}`
-    : `https://multiembed.mov/?video_id=${tmdbId || id}&tmdb=1`;
-}
-
-function getMultiEmbedSeriesUrl(id: string, season: number, episode: number, tmdbId?: string | number): string {
-  const isImdb = typeof id === 'string' && id.startsWith('tt');
-  return isImdb
-    ? `https://multiembed.mov/?video_id=${id}&s=${season}&e=${episode}`
-    : `https://multiembed.mov/?video_id=${tmdbId || id}&tmdb=1&s=${season}&e=${episode}`;
-}
+export type VODServer = 'vidsrc' | 'vidlink' | 'autoembed';
 
 export function getMovieStreamUrls(id: string | number, tmdbId?: string | number): Record<VODServer, string> {
   const vidId = tmdbId || id;
   return {
     vidsrc: `https://vidsrc.mov/embed/movie/${id}`,
     vidlink: `https://vidlink.pro/movie/${vidId}?primaryColor=ffd200`,
-    multiembed: getMultiEmbedMovieUrl(id, tmdbId),
+    autoembed: `https://player.autoembed.cc/embed/movie/${id}`,
   };
 }
 
@@ -28,7 +14,7 @@ export function getSeriesStreamUrls(id: string, season = 1, episode = 1, tmdbId?
   return {
     vidsrc: `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
     vidlink: `https://vidlink.pro/tv/${vidId}/${season}/${episode}?primaryColor=ffd200`,
-    multiembed: getMultiEmbedSeriesUrl(id, season, episode, tmdbId),
+    autoembed: `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`,
   };
 }
 
