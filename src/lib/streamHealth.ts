@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { getCachedJson, setCachedJson } from './redis';
 import { IChannel, IStream } from './types';
 
@@ -15,7 +16,8 @@ export async function checkStreamHealth(url: string, timeoutMs = 3000): Promise<
     return { online: false, error: 'Invalid URL format' };
   }
 
-  const cacheKey = `stream:health:${Buffer.from(url).toString('base64').slice(0, 48)}`;
+  const hash = crypto.createHash('md5').update(url).digest('hex');
+  const cacheKey = `stream:health:${hash}`;
   const cached = await getCachedJson<StreamHealthResult>(cacheKey);
   if (cached) return cached;
 

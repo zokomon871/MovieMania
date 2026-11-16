@@ -57,7 +57,19 @@ export function ChannelCard({
         </div>
 
         <button
-          onClick={(e) => onToggleFavorite(channel.id, e)}
+          onClick={(e) =>
+            onToggleFavorite(
+              // @ts-ignore
+              {
+                id: channel.id,
+                type: 'channel',
+                title: channel.name,
+                poster: channel.logo,
+                category: primaryCategory,
+              },
+              e
+            )
+          }
           className={`card-favorite-btn ${isFavorite ? 'active' : ''}`}
           title={isFavorite ? 'Remove bookmark' : 'Bookmark channel'}
         >

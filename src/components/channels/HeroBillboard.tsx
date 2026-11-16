@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Star, Sparkles } from 'lucide-react';
 import { IChannel } from '@/lib/types';
+import { useFavorites } from '@/hooks/useFavorites';
 
 interface HeroBillboardProps {
   featuredChannels: IChannel[];
   onSelectChannel: (channel: IChannel) => void;
-  isFavorite: boolean;
-  onToggleFavorite: (id: string, e: React.MouseEvent) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string, e: React.MouseEvent) => void;
 }
 
 const HERO_SLIDES = [
@@ -50,10 +51,11 @@ const HERO_SLIDES = [
 export function HeroBillboard({
   featuredChannels,
   onSelectChannel,
-  isFavorite,
-  onToggleFavorite,
+  isFavorite: isFavoriteProp,
+  onToggleFavorite: onToggleFavoriteProp,
 }: HeroBillboardProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { isFavorite: isFavHook, toggleFavorite: toggleFavHook } = useFavorites();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -63,6 +65,7 @@ export function HeroBillboard({
   }, []);
 
   const slide = HERO_SLIDES[currentIndex];
+  const slideFavorited = isFavHook(slide.id);
 
   const handleWatch = () => {
     const match = featuredChannels.find((c) => c.id === slide.id);
@@ -100,11 +103,23 @@ export function HeroBillboard({
             </button>
 
             <button
-              onClick={(e) => onToggleFavorite(slide.id, e)}
-              className={`hero-btn-secondary ${isFavorite ? 'active' : ''}`}
+              onClick={(e) =>
+                toggleFavHook(
+                  {
+                    id: slide.id,
+                    type: 'channel',
+                    title: slide.name,
+                    poster: slide.logo,
+                    backdrop: slide.backdrop,
+                    category: slide.category,
+                  },
+                  e
+                )
+              }
+              className={`hero-btn-secondary ${slideFavorited ? 'active' : ''}`}
             >
-              <Star size={18} fill={isFavorite ? 'var(--accent)' : 'transparent'} color={isFavorite ? 'var(--accent)' : 'currentColor'} />
-              <span>{isFavorite ? 'Bookmarked' : 'Add Bookmark'}</span>
+              <Star size={18} fill={slideFavorited ? 'var(--accent)' : 'transparent'} color={slideFavorited ? 'var(--accent)' : 'currentColor'} />
+              <span>{slideFavorited ? 'In Favorites' : 'Add to Favorites'}</span>
             </button>
           </div>
         </div>

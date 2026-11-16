@@ -2,6 +2,7 @@ import { Filter } from 'mongodb';
 import { getChannelsCollection } from './mongodb';
 import { getCachedJson, setCachedJson } from './redis';
 import { IChannel, IChannelFilterParams, IChannelListResponse, ICategory, ICountry } from './types';
+import { getCountryFlag, getCountryName } from './countryData';
 
 export async function fetchChannelsService(params: IChannelFilterParams): Promise<IChannelListResponse> {
   const search = (params.search || '').trim();
@@ -91,7 +92,13 @@ export async function fetchCountriesService(): Promise<ICountry[]> {
     { $sort: { count: -1 } },
   ];
 
-  const countries = (await collection.aggregate<ICountry>(pipeline).toArray()) || [];
+  const rawCountries = (await collection.aggregate<{ code: string; count: number }>(pipeline).toArray()) || [];
+  const countries: ICountry[] = rawCountries.map((c) => ({
+    code: c.code,
+    name: getCountryName(c.code),
+    flag: getCountryFlag(c.code),
+    count: c.count,
+  }));
   await setCachedJson(cacheKey, countries, 18000);
   return countries;
 }
