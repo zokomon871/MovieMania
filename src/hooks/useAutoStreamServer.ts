@@ -5,7 +5,7 @@ import { VODServer, getMovieStreamUrls, getSeriesStreamUrls } from '@/lib/mediaU
 
 export type ServerMode = 'auto' | VODServer;
 
-const SERVER_ORDER: VODServer[] = ['vidsrc', 'vidlink', 'cinesrc'];
+const SERVER_ORDER: VODServer[] = ['vidsrc', 'vidlink', 'cinesrc', 'modiplay'];
 
 interface UseAutoStreamServerProps {
   type: 'movie' | 'series';
@@ -40,7 +40,7 @@ export function useAutoStreamServer({
   useEffect(() => {
     try {
       const saved = localStorage.getItem('moviemania_vod_server');
-      if (saved === 'auto' || saved === 'vidsrc' || saved === 'vidlink' || saved === 'cinesrc') {
+      if (saved === 'auto' || saved === 'vidsrc' || saved === 'vidlink' || saved === 'cinesrc' || saved === 'modiplay') {
         setSelectedMode(saved as ServerMode);
         if (saved !== 'auto') {
           setActiveServer(saved as VODServer);

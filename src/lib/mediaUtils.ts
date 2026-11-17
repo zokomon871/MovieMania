@@ -1,4 +1,4 @@
-export type VODServer = 'vidsrc' | 'vidlink' | 'cinesrc';
+export type VODServer = 'vidsrc' | 'vidlink' | 'cinesrc' | 'modiplay';
 
 export function getMovieStreamUrls(id: string | number, tmdbId?: string | number): Record<VODServer, string> {
   const vidId = tmdbId || id;
@@ -6,6 +6,7 @@ export function getMovieStreamUrls(id: string | number, tmdbId?: string | number
     vidsrc: `https://vidsrc.mov/embed/movie/${id}`,
     vidlink: `https://vidlink.pro/movie/${vidId}?primaryColor=ffd200`,
     cinesrc: `https://cinesrc.st/embed/movie/${id}`,
+    modiplay: `https://rozgarlelo.modiplay.xyz/embed/tmdb/movie?id=${vidId}`,
   };
 }
 
@@ -15,6 +16,7 @@ export function getSeriesStreamUrls(id: string, season = 1, episode = 1, tmdbId?
     vidsrc: `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
     vidlink: `https://vidlink.pro/tv/${vidId}/${season}/${episode}?primaryColor=ffd200`,
     cinesrc: `https://cinesrc.st/embed/tv/${id}?s=${season}&e=${episode}`,
+    modiplay: `https://rozgarlelo.modiplay.xyz/embed/tmdb/tv?id=${vidId}&s=${season}&e=${episode}`,
   };
 }
 

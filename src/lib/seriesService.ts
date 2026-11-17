@@ -107,7 +107,7 @@ export async function fetchSeriesDetails(id: string): Promise<ISeries | null> {
       episodes.push({ id: v.id || `${m.id}:${season}:${episode}`, season, episode, title: v.name || v.title || `Episode ${episode}`, overview: v.overview || v.description || '', thumbnail: v.thumbnail || null });
     }
     episodes.sort((a, b) => a.season !== b.season ? a.season - b.season : a.episode - b.episode);
-    const seriesDoc: ISeries = { id: m.id, title: m.name, year: m.releaseInfo || m.year || '', overview: m.description || '', poster: m.poster || null, backdrop: m.background || m.poster || null, rating: m.imdbRating ? parseFloat(m.imdbRating) : 0, genres: Array.isArray(m.genres) ? m.genres : [], seasonsCount: episodes.reduce((max, ep) => Math.max(max, ep.season), 1), episodes, tmdbId: m.moviedb_id || m.tmdb_id || undefined };
+    const seriesDoc: ISeries = { id: m.id, title: m.name, year: m.releaseInfo || m.year || '', overview: m.description || '', poster: m.poster || null, backdrop: m.background || m.poster || null, rating: m.imdbRating ? parseFloat(m.imdbRating) : 0, genres: Array.isArray(m.genres) ? m.genres : [], seasonsCount: episodes.reduce((max, ep) => Math.max(max, ep.season), 1), episodes, tmdbId: m.moviedb_id || m.tmdb_id || undefined, cast: Array.isArray(m.cast) ? m.cast : [] };
     await saveDiscoveredSeriesToDb([seriesDoc]);
     return seriesDoc;
   } catch (err: any) {

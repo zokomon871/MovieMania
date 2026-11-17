@@ -2101,6 +2101,779 @@ html, body {
   max-width: 320px;
 }
 
+/* ============================================================
+   MULTIMOVIES CINEMA PLAYER & SERVER GRID SYSTEM
+   ============================================================ */
+.player-page-wrap {
+  max-width: 1200px;
+  margin: 10px auto 40px;
+  padding: 0 20px;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.player-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 65vh;
+  background: #000;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.player-stage.fullscreen {
+  max-height: none;
+  border-radius: 0;
+  border: none;
+}
+
+.player-stage iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.server-switcher-box {
+  background: rgba(24, 24, 24, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-top: 14px;
+}
+
+.server-strip-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.server-strip-heading .report-issue {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.server-strip-heading .report-issue:hover {
+  color: var(--accent);
+}
+
+.server-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.server-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.server-chip:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.server-chip.active {
+  background: rgba(229, 9, 20, 0.18) !important;
+  border-color: #ff2a44 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(229, 9, 20, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+.server-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+  flex-shrink: 0;
+}
+
+.server-chip.active .server-dot {
+  background: #ff2a44;
+  box-shadow: 0 0 8px rgba(255, 42, 68, 0.8);
+}
+
+.server-num {
+  font-size: 11px;
+  opacity: 0.6;
+  font-weight: 700;
+}
+
+.server-name {
+  font-size: 13px;
+}
+
+.server-badge {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* Episode Quick Navigator Bar */
+.ep-navigator-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0 18px;
+  width: 100%;
+}
+
+.ep-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f4f8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.ep-nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.ep-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Ambient Blurred Cinema Background */
+.watch-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.watch-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.15);
+  filter: blur(48px) brightness(0.28) saturate(1.4);
+}
+
+.watch-shell {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+/* ============================================================
+   MULTIMOVIES DEDICATED DETAIL HERO STAGE (.cinejoy-detail-stage)
+   ============================================================ */
+.cinejoy-detail-stage {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 30px 0 28px 0;
+  position: relative;
+  z-index: 10;
+}
+
+.cinejoy-detail-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.cinejoy-detail-title {
+  font-size: clamp(32px, 4.5vw, 54px);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.08;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+}
+
+.cinejoy-detail-genres {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+}
+
+.cinejoy-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.cinejoy-btn-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #070709;
+  font-weight: 800;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cinejoy-btn-play:hover {
+  transform: scale(1.04);
+  box-shadow: 0 8px 26px rgba(255, 255, 255, 0.4);
+}
+
+.cinejoy-circle-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cinejoy-circle-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.08);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.cinejoy-circle-btn.active {
+  background: rgba(229, 9, 20, 0.2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cinejoy-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.cinejoy-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.cinejoy-badge-hd {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #46d369;
+}
+
+.cinejoy-badge-imdb {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.cinejoy-overview-wrap {
+  max-width: 720px;
+}
+
+.cinejoy-detail-overview {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.65;
+  margin: 0 0 8px 0;
+}
+
+.cinejoy-spec-box {
+  width: 290px;
+  background: rgba(24, 24, 28, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 22px 24px;
+  flex-shrink: 0;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+.cinejoy-spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 13px;
+}
+
+.cinejoy-spec-row:last-of-type {
+  border-bottom: none;
+}
+
+.cinejoy-spec-label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.cinejoy-spec-val {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.cinejoy-spec-network {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cinejoy-spec-network-badge {
+  background: #e50914;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* Cinejoy Cast & Crew Section */
+.cinejoy-cast-section {
+  margin: 44px 0 28px 0;
+}
+
+.cinejoy-cast-grid {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 8px;
+}
+
+.cinejoy-cast-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.cinejoy-cast-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 88px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  cursor: default;
+}
+
+.cinejoy-cast-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.cinejoy-cast-card:hover .cinejoy-cast-img {
+  transform: scale(1.08);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.cinejoy-cast-name {
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cinejoy-cast-role {
+  margin-top: 2px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .cinejoy-detail-stage {
+    flex-direction: column;
+    gap: 24px;
+    padding-top: 20px;
+  }
+  .cinejoy-spec-box {
+    width: 100%;
+  }
+}
+
+/* Cinejoy Episodes Section */
+.cinejoy-episodes-section {
+  margin-top: 32px;
+}
+
+.cinejoy-episodes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cinejoy-episodes-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.cinejoy-season-select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.cinejoy-season-select option {
+  background: #141414;
+  color: #fff;
+}
+
+.cinejoy-season-select:hover,
+.cinejoy-season-select:focus {
+  border-color: var(--accent);
+}
+
+.cinejoy-season-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.cinejoy-ep-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.cinejoy-ep-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+.cinejoy-ep-card.is-playing {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.35);
+  background: rgba(229, 9, 20, 0.04);
+}
+
+.cinejoy-ep-thumb-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0d0d0f;
+  overflow: hidden;
+}
+
+.cinejoy-ep-thumb-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.cinejoy-ep-card:hover .cinejoy-ep-thumb-box img {
+  transform: scale(1.05);
+}
+
+.cinejoy-ep-badge-num {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 5px;
+  backdrop-filter: blur(8px);
+}
+
+.cinejoy-ep-card.is-playing .cinejoy-ep-badge-num {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.cinejoy-ep-badge-time {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.cinejoy-ep-play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cinejoy-ep-card:hover .cinejoy-ep-play-overlay {
+  opacity: 1;
+}
+
+.cinejoy-ep-play-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(229, 9, 20, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  transform: scale(0.9);
+  transition: transform 0.2s ease;
+}
+
+.cinejoy-ep-card:hover .cinejoy-ep-play-circle {
+  transform: scale(1);
+}
+
+.cinejoy-ep-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cinejoy-ep-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cinejoy-ep-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Responsive Mobile & Tablet Rules for Cinema Player & Episodes */
+@media (max-width: 768px) {
+  .player-page-wrap {
+    padding: 0 12px;
+    margin: 6px auto 28px;
+  }
+
+  .player-stage {
+    border-radius: 10px;
+    max-height: 52vh;
+  }
+
+  .server-switcher-box {
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
+
+  .server-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+  }
+
+  .server-chip {
+    padding: 8px 10px;
+    font-size: 12px;
+    justify-content: center;
+  }
+
+  .ep-navigator-bar {
+    gap: 8px;
+    margin: 10px 0 14px;
+  }
+
+  .ep-nav-btn {
+    flex: 1;
+    min-height: 40px;
+    padding: 7px 10px;
+    font-size: 12px;
+    justify-content: center;
+  }
+
+  .cinejoy-season-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+}
+
+@media (max-width: 540px) {
+  .player-stage {
+    border-radius: 8px;
+    max-height: none;
+  }
+
+  .server-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .server-chip {
+    padding: 7px 8px;
+    font-size: 11.5px;
+    gap: 5px;
+  }
+
+  .server-chip .server-badge {
+    display: none;
+  }
+
+  .cinejoy-episodes-section {
+    margin-top: 24px;
+  }
+
+  .cinejoy-episodes-header {
+    gap: 8px;
+  }
+
+  .cinejoy-episodes-title {
+    font-size: 1.2rem;
+  }
+
+  .cinejoy-season-select {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    width: 100%;
+  }
+
+  .cinejoy-season-pill-dropdown {
+    width: 100%;
+  }
+
+  /* Compact Horizontal Row Cards for Mobile (Netflix Mobile Pattern) */
+  .cinejoy-season-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cinejoy-ep-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .cinejoy-ep-thumb-box {
+    width: 125px;
+    min-width: 125px;
+    border-radius: 8px;
+  }
+
+  .cinejoy-ep-body {
+    padding: 0 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cinejoy-ep-name {
+    font-size: 0.86rem;
+    margin-bottom: 2px;
+  }
+
+  .cinejoy-ep-desc {
+    display: none;
+  }
+}
+
 .vod-season-pill {
   background: var(--accent);
   color: var(--text-inverse);
@@ -3037,6 +3810,8 @@ html, body {
   position: relative;
   z-index: 1;
   padding-top: 20px;
+  max-width: 1240px;
+  margin: 0 auto;
 }
 
 .movie-breadcrumb {
@@ -3074,10 +3849,9 @@ html, body {
 }
 
 .movie-player-section {
-  margin-bottom: 32px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-  border-radius: 16px;
-  overflow: hidden;
+  max-width: 1200px;
+  margin: 0 auto 32px;
+  width: 100%;
 }
 
 .movie-details-card {

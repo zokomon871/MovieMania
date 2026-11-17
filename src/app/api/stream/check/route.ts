@@ -3,7 +3,7 @@ import { getMovieStreamUrls, getSeriesStreamUrls, VODServer } from '@/lib/mediaU
 
 export const dynamic = 'force-dynamic';
 
-const SERVERS: VODServer[] = ['vidsrc', 'vidlink', 'cinesrc'];
+const SERVERS: VODServer[] = ['vidsrc', 'vidlink', 'cinesrc', 'modiplay'];
 
 async function probeUrl(url: string, timeoutMs = 2800): Promise<{ ok: boolean; status: number; latency: number }> {
   const start = Date.now();
@@ -23,8 +23,11 @@ async function probeUrl(url: string, timeoutMs = 2800): Promise<{ ok: boolean; s
 
     clearTimeout(timeout);
     const latency = Date.now() - start;
+    // Note: Cloudflare anti-bot challenge (403) from server-side fetch is common for embed mirrors
+    // but the URL will load successfully inside a user's browser iframe.
+    const isLive = res.ok || res.status === 200 || res.status === 304 || res.status === 403;
     return {
-      ok: res.ok || res.status === 200 || res.status === 304,
+      ok: isLive,
       status: res.status,
       latency,
     };

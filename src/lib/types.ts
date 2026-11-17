@@ -111,6 +111,7 @@ export interface ISeries {
   seasonsCount?: number;
   episodes?: IEpisode[];
   tmdbId?: string | number;
+  cast?: string[];
   updated_at?: Date | string;
 }
 
