@@ -3,7 +3,7 @@ import { getMovieStreamUrls, getSeriesStreamUrls, VODServer } from '@/lib/mediaU
 
 export const dynamic = 'force-dynamic';
 
-const SERVERS: VODServer[] = ['vidsrc', 'vidlink', 'cinesrc', 'modiplay'];
+const SERVERS: VODServer[] = ['modiplay', 'iqsmart', 'vidsrc', 'vidlink', 'cinesrc'];
 
 async function probeUrl(url: string, timeoutMs = 2800): Promise<{ ok: boolean; status: number; latency: number }> {
   const start = Date.now();
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
   const operational = results.filter((r) => r.ok);
   operational.sort((a, b) => a.latency - b.latency);
 
-  const bestServer: VODServer = operational.length > 0 ? operational[0].server : 'vidsrc';
+  const bestServer: VODServer = operational.length > 0 ? operational[0].server : 'modiplay';
 
   return NextResponse.json({
     bestServer,

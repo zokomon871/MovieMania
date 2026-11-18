@@ -5,7 +5,7 @@ import { VODServer, getMovieStreamUrls, getSeriesStreamUrls } from '@/lib/mediaU
 
 export type ServerMode = 'auto' | VODServer;
 
-const SERVER_ORDER: VODServer[] = ['vidsrc', 'vidlink', 'cinesrc', 'modiplay'];
+const SERVER_ORDER: VODServer[] = ['modiplay', 'iqsmart', 'vidsrc', 'vidlink', 'cinesrc'];
 
 interface UseAutoStreamServerProps {
   type: 'movie' | 'series';
@@ -23,7 +23,7 @@ export function useAutoStreamServer({
   episode = 1,
 }: UseAutoStreamServerProps) {
   const [selectedMode, setSelectedMode] = useState<ServerMode>('auto');
-  const [activeServer, setActiveServer] = useState<VODServer>('vidsrc');
+  const [activeServer, setActiveServer] = useState<VODServer>('modiplay');
   const [failedServers, setFailedServers] = useState<Set<VODServer>>(new Set());
   const [isSwitching, setIsSwitching] = useState(false);
   const [switchMessage, setSwitchMessage] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export function useAutoStreamServer({
   useEffect(() => {
     try {
       const saved = localStorage.getItem('moviemania_vod_server');
-      if (saved === 'auto' || saved === 'vidsrc' || saved === 'vidlink' || saved === 'cinesrc' || saved === 'modiplay') {
+      if (saved === 'auto' || saved === 'vidsrc' || saved === 'vidlink' || saved === 'cinesrc' || saved === 'modiplay' || saved === 'iqsmart') {
         setSelectedMode(saved as ServerMode);
         if (saved !== 'auto') {
           setActiveServer(saved as VODServer);
@@ -113,7 +113,16 @@ export function useAutoStreamServer({
         } else {
           // All servers attempted, reset cycle to give another try
           nextSet.clear();
-          const next = activeServer === 'vidsrc' ? 'vidlink' : activeServer === 'vidlink' ? 'cinesrc' : 'vidsrc';
+          const next =
+            activeServer === 'modiplay'
+              ? 'iqsmart'
+              : activeServer === 'iqsmart'
+              ? 'vidsrc'
+              : activeServer === 'vidsrc'
+              ? 'vidlink'
+              : activeServer === 'vidlink'
+              ? 'cinesrc'
+              : 'modiplay';
           setActiveServer(next);
           setSwitchMessage('Retrying available stream sources...');
           setTimeout(() => setSwitchMessage(null), 3000);

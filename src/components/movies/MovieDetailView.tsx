@@ -135,6 +135,36 @@ export function MovieDetailView({ movie, relatedMovies }: MovieDetailViewProps) 
                 {movie.overview || 'No detailed synopsis available for this title.'}
               </p>
             </div>
+
+            {movie.cast && movie.cast.length > 0 && (
+              <div className="cinejoy-cast-section" style={{ marginTop: '24px' }}>
+                <h3 className="cinejoy-cast-heading">Cast & Crew</h3>
+                <div className="cinejoy-cast-row">
+                  {movie.cast.map((actor, idx) => (
+                    <div key={idx} className="cinejoy-cast-card">
+                      <div className="cinejoy-cast-avatar">
+                        <div className="cinejoy-cast-avatar-fallback">
+                          {actor.charAt(0)}
+                        </div>
+                      </div>
+                      <div className="cinejoy-cast-name">{actor}</div>
+                      <div className="cinejoy-cast-role">Starring</div>
+                    </div>
+                  ))}
+                  {movie.director && movie.director.length > 0 && movie.director.map((dir, idx) => (
+                    <div key={`dir-${idx}`} className="cinejoy-cast-card">
+                      <div className="cinejoy-cast-avatar">
+                        <div className="cinejoy-cast-avatar-fallback" style={{ background: 'linear-gradient(135deg, #E50914, #8b0000)' }}>
+                          🎬
+                        </div>
+                      </div>
+                      <div className="cinejoy-cast-name">{dir}</div>
+                      <div className="cinejoy-cast-role">Director</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

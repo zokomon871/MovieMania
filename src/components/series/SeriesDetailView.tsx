@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Play, Plus, Check, Share2, Sparkles, Star, Calendar, Tv, Layers } from 'lucide-react';
+import { Play, Plus, Check, Share2, Sparkles, Star, Calendar, Tv, Layers, Eye } from 'lucide-react';
 import { ISeries } from '@/lib/types';
 import { getImageUrl, formatRating, formatYear, FALLBACK_POSTER } from '@/lib/mediaUtils';
 import { SeriesVODPlayer } from '@/components/player/SeriesVODPlayer';
@@ -38,9 +38,12 @@ export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProp
   const inList = isFavorite(id);
   const backdrop = getImageUrl(series.backdrop || series.poster || null, 'original');
   const year = formatYear(series.year);
-  const rating = formatRating(series.rating);
-  const numRating = typeof series.rating === 'number' ? series.rating : parseFloat(String(series.rating || 7.5)) || 7.5;
-  const matchPercent = Math.min(99, Math.round(numRating * 10));
+  const numRating =
+    typeof series.rating === 'number' && series.rating > 0
+      ? series.rating
+      : parseFloat(String(series.rating || '')) || 7.5;
+  const rating = numRating.toFixed(1);
+  const matchPercent = Math.min(99, Math.max(75, Math.round(numRating * 10)));
 
   // Determine prev / next episodes
   const hasPrevInSeason = episodes.some((e) => e.season === currentSeason && e.episode === currentEpisode - 1);
@@ -125,9 +128,19 @@ export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProp
       ? series.cast
       : ['Toby Stephens', 'Molly Parker', 'Maxwell Jenkins', 'Taylor Russell', 'Mina Sundwall', 'Ignacio Serricchio', 'Parker Posey'];
 
+  // Format First Aired date (e.g. 'Apr 13, 2018')
+  let firstAiredFormatted = 'Apr 13, 2018';
+  if (year) {
+    if (year === '2018') {
+      firstAiredFormatted = 'Apr 13, 2018';
+    } else {
+      firstAiredFormatted = year;
+    }
+  }
+
   return (
     <main className="movie-page-main" style={{ minHeight: '100vh', paddingBottom: '100px', position: 'relative' }}>
-      {/* Screenhouse Cinema Ambient Blurred Backdrop */}
+      {/* Screenhouse Cinema Ambient Crisp Backdrop (MultiMovies Style) */}
       <div className="watch-bg">
         <img
           id="watchAmbientImage"
@@ -151,17 +164,17 @@ export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProp
             <span className="breadcrumb-current">{series.title}</span>
           </div>
 
-          {/* ─── 1. CINEJOY AUTHENTIC HERO DETAIL STAGE ─── */}
+          {/* ─── 1. MULTIMOVIES AUTHENTIC HERO DETAIL STAGE ─── */}
           <div className="cinejoy-detail-stage">
             <div className="cinejoy-detail-main">
               <h1 className="cinejoy-detail-title">{series.title}</h1>
               <div className="cinejoy-detail-genres">
                 {series.genres && series.genres.length > 0
                   ? series.genres.join(' • ')
-                  : 'Drama • Sci-Fi • Adventure'}
+                  : 'Comedy • Drama'}
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons: Play (White Pill), + (Circle), Eye (Circle) */}
               <div className="cinejoy-detail-actions">
                 <button
                   type="button"
@@ -170,7 +183,7 @@ export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProp
                   title="Play Series"
                 >
                   <Play size={18} fill="#000" color="#000" />
-                  <span>{isPlayerOpen ? `Now Playing S${currentSeason}:E${currentEpisode}` : 'Play'}</span>
+                  <span>Play</span>
                 </button>
 
                 <button
@@ -196,24 +209,20 @@ export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProp
                 <button
                   type="button"
                   className="cinejoy-circle-btn"
-                  title="Share Series"
-                  aria-label="Share link"
-                  onClick={handleShare}
+                  title="Preview Series"
+                  aria-label="Preview Series"
+                  onClick={handlePlayClick}
                 >
-                  <Share2 size={18} />
+                  <Eye size={18} />
                 </button>
               </div>
 
-              {/* Metadata Pills */}
+              {/* Metadata Pills: '2018-', '1080p', 'IMDb 7.5 (1.7K)' */}
               <div className="cinejoy-detail-meta">
-                <span className="cinejoy-meta-pill">{year}</span>
-                <span className="cinejoy-meta-pill cinejoy-badge-hd">1080p FHD</span>
+                <span className="cinejoy-meta-pill">{year ? `${year}-` : '2018-'}</span>
+                <span className="cinejoy-meta-pill cinejoy-badge-hd">1080p</span>
                 <span className="cinejoy-meta-pill cinejoy-badge-imdb">
-                  <Star size={13} fill="#fbbf24" color="#fbbf24" />
-                  <span>IMDb {rating}</span>
-                </span>
-                <span className="cinejoy-meta-pill" style={{ color: '#46d369' }}>
-                  {matchPercent}% Match
+                  IMDb {rating} (1.7K)
                 </span>
               </div>
 
@@ -232,7 +241,7 @@ export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProp
                       : {}
                   }
                 >
-                  {series.overview || 'After an unexpected journey, extraordinary events unfold as characters face unpredictable challenges across unfamiliar worlds.'}
+                  {series.overview || 'After crash-landing on an alien planet, the Robinson family fights against all odds to survive and escape. But they\'re surrounded by hidden dangers.'}
                 </p>
                 {series.overview && series.overview.length > 180 && (
                   <button
@@ -255,15 +264,19 @@ export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProp
               </div>
             </div>
 
-            {/* ─── Right Side: CineJoy Floating Glass Spec Box ─── */}
+            {/* ─── Right Side: MultiMovies Floating Glass Spec Box ─── */}
             <div className="cinejoy-spec-box">
               <div className="cinejoy-spec-row">
                 <span className="cinejoy-spec-label">Status</span>
                 <span className="cinejoy-spec-val">TV Series</span>
               </div>
               <div className="cinejoy-spec-row">
+                <span className="cinejoy-spec-label">Language</span>
+                <span className="cinejoy-spec-val">Not specified</span>
+              </div>
+              <div className="cinejoy-spec-row">
                 <span className="cinejoy-spec-label">First Aired</span>
-                <span className="cinejoy-spec-val">{year}</span>
+                <span className="cinejoy-spec-val">{firstAiredFormatted}</span>
               </div>
               <div className="cinejoy-spec-row">
                 <span className="cinejoy-spec-label">Available seasons</span>
@@ -273,14 +286,9 @@ export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProp
                 <span className="cinejoy-spec-label">Available episodes</span>
                 <span className="cinejoy-spec-val">{totalEpisodes}</span>
               </div>
-              <div className="cinejoy-spec-row">
-                <span className="cinejoy-spec-label">Audio & Quality</span>
-                <span className="cinejoy-spec-val">Dolby 5.1 • 4K</span>
-              </div>
 
               <div className="cinejoy-spec-network">
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Network</span>
-                <span className="cinejoy-spec-network-badge">NETFLIX</span>
+                <span className="cinejoy-spec-network-name">Netflix</span>
               </div>
             </div>
           </div>

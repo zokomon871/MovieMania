@@ -19,10 +19,11 @@ interface Props {
 }
 
 const SERVER_CONFIG: Array<{ key: VODServer; name: string; badge: string; num: string }> = [
-  { key: 'vidsrc', name: 'VidSrc', badge: 'HD', num: '#1' },
-  { key: 'vidlink', name: 'VidLink', badge: '1080p', num: '#2' },
-  { key: 'cinesrc', name: 'CineSrc', badge: 'HD', num: '#3' },
-  { key: 'modiplay', name: 'AutoEmbed', badge: 'HD', num: '#4' },
+  { key: 'modiplay', name: 'CineVerse', badge: 'HD', num: '#1' },
+  { key: 'iqsmart', name: 'AutoEmbed 2', badge: '1080p', num: '#2' },
+  { key: 'vidsrc', name: 'VidSrc', badge: 'HD', num: '#3' },
+  { key: 'vidlink', name: 'VidLink', badge: '1080p', num: '#4' },
+  { key: 'cinesrc', name: 'CineSrc', badge: 'HD', num: '#5' },
 ];
 
 export function SeriesVODPlayer({

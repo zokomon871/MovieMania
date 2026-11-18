@@ -6,6 +6,7 @@ import {
   getMovieByIdFromDb,
   saveDiscoveredMoviesToDb,
 } from './movieService';
+import { getCachedJson, setCachedJson } from './redis';
 
 const CINEMETA_URL = 'https://v3-cinemeta.strem.io';
 
@@ -19,6 +20,8 @@ function normalizeMeta(m: any): ITMDBMovie {
     release_date: m.releaseInfo || m.year || '',
     vote_average: m.imdbRating ? parseFloat(m.imdbRating) : 0,
     tmdbId: m.moviedb_id || m.tmdb_id || undefined,
+    cast: Array.isArray(m.cast) ? m.cast : [],
+    director: Array.isArray(m.director) ? m.director : [],
   };
 }
 
@@ -61,24 +64,42 @@ export async function getPopularMovies(page = 1): Promise<ITMDBMovie[]> {
 }
 
 export async function searchMovies(query = '', genre = '', sortBy = 'rating', minRating = 0, page = 1): Promise<ITMDBMovie[]> {
-  const local = await searchMoviesFromDb(query, genre, sortBy, minRating, page, 24);
+  const q = query.trim();
+  if (!q && (!genre || genre === 'All')) return [];
+
+  const cacheKey = `search:movies:${q.toLowerCase()}:${genre}:${sortBy}:${page}`;
+  const cached = await getCachedJson<ITMDBMovie[]>(cacheKey);
+  if (cached && cached.length > 0) {
+    return cached;
+  }
+
+  const local = await searchMoviesFromDb(q, genre, sortBy, minRating, page, 24);
   if (local.length > 0) {
-    console.log(`[Movies] ✅ Found ${local.length} titles in database for "${query || genre}".`);
+    console.log(`[Movies] ✅ Found ${local.length} titles in database for "${q || genre}".`);
+    await setCachedJson(cacheKey, local, 7200);
     return local;
   }
-  if (!query.trim() && (!genre || genre === 'All')) return [];
-  console.log(`[Movies] ℹ️ "${query || genre}" not in database. Fetching from Cinemeta & saving to DB...`);
+
   try {
-    const q = query.trim();
     const endpoint = q ? `/catalog/movie/top/search=${encodeURIComponent(q)}.json` : `/catalog/movie/top/genre=${encodeURIComponent(genre)}.json`;
-    const res = await fetch(`${CINEMETA_URL}${endpoint}`);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3500);
+
+    const res = await fetch(`${CINEMETA_URL}${endpoint}`, { signal: controller.signal });
+    clearTimeout(timeout);
+
     if (!res.ok) return [];
     const rawMetas = (await res.json()).metas || [];
     const toSave: IMovie[] = rawMetas.filter((m: any) => m.id && m.name).map((m: any) => ({
       id: m.id, title: m.name, year: m.releaseInfo || m.year || '', overview: m.description || '', poster: m.poster || null, backdrop: m.background || m.poster || null, rating: m.imdbRating ? parseFloat(m.imdbRating) : 0, genres: Array.isArray(m.genres) ? m.genres : genre && genre !== 'All' ? [genre] : [], type: 'movie',
     }));
-    if (toSave.length > 0) await saveDiscoveredMoviesToDb(toSave);
-    return rawMetas.map(normalizeMeta);
+    if (toSave.length > 0) saveDiscoveredMoviesToDb(toSave).catch(() => {});
+
+    const results = rawMetas.map(normalizeMeta);
+    if (results.length > 0) {
+      await setCachedJson(cacheKey, results, 7200);
+    }
+    return results;
   } catch (err: any) {
     console.warn('[Movies] ⚠️ Search error:', err.message);
     return [];
@@ -98,7 +119,18 @@ export async function getMovieDetails(id: string): Promise<ITMDBMovie | null> {
     const m = (await res.json()).meta;
     if (!m?.id || !m?.name) return null;
     const movieDoc: IMovie = {
-      id: m.id, title: m.name, year: m.releaseInfo || m.year || '', overview: m.description || '', poster: m.poster || null, backdrop: m.background || m.poster || null, rating: m.imdbRating ? parseFloat(m.imdbRating) : 0, genres: Array.isArray(m.genres) ? m.genres : [], type: 'movie', tmdbId: m.moviedb_id || m.tmdb_id || undefined,
+      id: m.id,
+      title: m.name,
+      year: m.releaseInfo || m.year || '',
+      overview: m.description || '',
+      poster: m.poster || null,
+      backdrop: m.background || m.poster || null,
+      rating: m.imdbRating ? parseFloat(m.imdbRating) : 0,
+      genres: Array.isArray(m.genres) ? m.genres : [],
+      type: 'movie',
+      tmdbId: m.moviedb_id || m.tmdb_id || undefined,
+      cast: Array.isArray(m.cast) ? m.cast : [],
+      director: Array.isArray(m.director) ? m.director : [],
     };
     await saveDiscoveredMoviesToDb([movieDoc]);
     return normalizeMeta(m);

@@ -8,6 +8,7 @@ export const toPlain = (d: any): ISeries => ({
   rating: d.rating ? (typeof d.rating === 'number' ? d.rating : parseFloat(d.rating) || 0) : 0,
   genres: Array.isArray(d.genres) ? d.genres : [], seasonsCount: Number(d.seasonsCount) || 1,
   episodes: Array.isArray(d.episodes) ? d.episodes : [], tmdbId: d.tmdbId || d.moviedb_id,
+  cast: Array.isArray(d.cast) ? d.cast : [],
 });
 
 export async function getTrendingSeriesFromDb(limit = 20): Promise<ISeries[]> {

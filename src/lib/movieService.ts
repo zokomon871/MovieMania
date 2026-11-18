@@ -13,6 +13,8 @@ function toITMDB(m: IMovie): ITMDBMovie {
     release_date: String(m.year || ''),
     vote_average: ratingNum,
     tmdbId: m.tmdbId,
+    cast: Array.isArray(m.cast) ? m.cast : [],
+    director: Array.isArray(m.director) ? m.director : [],
   };
 }
 

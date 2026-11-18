@@ -6,6 +6,7 @@ import {
   getSeriesByIdFromDb,
   saveDiscoveredSeriesToDb,
 } from './seriesDb';
+import { getCachedJson, setCachedJson } from './redis';
 
 const CINEMETA_URL = 'https://v3-cinemeta.strem.io';
 
@@ -65,19 +66,41 @@ export async function getPopularSeries(page = 1, limit = 20): Promise<ISeries[]>
 }
 
 export async function searchSeries(query = '', genre = '', sortBy = 'rating', minRating = 0, page = 1): Promise<ISeries[]> {
-  const local = await searchSeriesFromDb(query, genre, sortBy, minRating, page, 24);
+  const q = query.trim();
+  if (!q && (!genre || genre === 'All')) return [];
+
+  const cacheKey = `search:series:${q.toLowerCase()}:${genre}:${sortBy}:${page}`;
+  const cached = await getCachedJson<ISeries[]>(cacheKey);
+  if (cached && cached.length > 0) {
+    return cached;
+  }
+
+  const local = await searchSeriesFromDb(q, genre, sortBy, minRating, page, 24);
   if (local.length > 0) {
-    console.log(`[Series] ✅ Found ${local.length} series in database for "${query || genre}".`);
+    console.log(`[Series] ✅ Found ${local.length} series in database for "${q || genre}".`);
+    await setCachedJson(cacheKey, local, 7200);
     return local;
   }
-  console.log(`[Series] ℹ️ "${query || genre}" not in database. Fetching from Cinemeta & saving to DB...`);
+
   try {
-    const q = query.trim();
-    const endpoint = q ? `/catalog/series/top/search=${encodeURIComponent(q)}.json` : (genre && genre !== 'All' ? `/catalog/series/top/genre=${encodeURIComponent(genre)}.json` : `/catalog/series/top.json`);
-    const res = await fetch(`${CINEMETA_URL}${endpoint}`);
+    const endpoint = q
+      ? `/catalog/series/top/search=${encodeURIComponent(q)}.json`
+      : (genre && genre !== 'All'
+      ? `/catalog/series/top/genre=${encodeURIComponent(genre)}.json`
+      : `/catalog/series/top.json`);
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3500);
+
+    const res = await fetch(`${CINEMETA_URL}${endpoint}`, { signal: controller.signal });
+    clearTimeout(timeout);
+
     if (!res.ok) return [];
     const items = ((await res.json()).metas || []).map(normalizeMeta);
-    if (items.length > 0) await saveDiscoveredSeriesToDb(items);
+    if (items.length > 0) {
+      saveDiscoveredSeriesToDb(items).catch(() => {});
+      await setCachedJson(cacheKey, items, 7200);
+    }
     return items;
   } catch (err: any) {
     console.warn('[Series] ⚠️ Search error:', err.message);

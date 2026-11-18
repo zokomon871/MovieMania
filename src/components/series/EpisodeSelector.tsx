@@ -25,34 +25,39 @@ export function EpisodeSelector({
 
   return (
     <div className="cinejoy-episodes-section" id="episodes">
-      {/* ─── Header: Title & Season Select Dropdown ─── */}
+      {/* ─── Header: Title & Season Select Dropdown + Options (MultiMovies Style) ─── */}
       <div className="cinejoy-episodes-header">
-        <div>
-          <h2 className="cinejoy-episodes-title">Episodes</h2>
-          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            {activeEpisodes.length} episodes in Season {currentSeason}
-          </p>
-        </div>
+        <h2 className="cinejoy-episodes-title">Episodes</h2>
 
-        {seasons.length > 0 && (
-          <div className="cinejoy-season-pill-dropdown">
-            <select
-              className="cinejoy-season-select"
-              aria-label="Select Season"
-              value={currentSeason}
-              onChange={(e) => onSelectSeason(parseInt(e.target.value, 10))}
-            >
-              {seasons.map((s) => {
-                const count = episodes.filter((e) => e.season === s).length;
-                return (
-                  <option key={s} value={s}>
-                    Season {s} • {count} {count === 1 ? 'episode' : 'episodes'}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {seasons.length > 0 && (
+            <div className="cinejoy-season-pill-dropdown">
+              <select
+                className="cinejoy-season-select"
+                aria-label="Select Season"
+                value={currentSeason}
+                onChange={(e) => onSelectSeason(parseInt(e.target.value, 10))}
+              >
+                {seasons.map((s) => {
+                  const count = episodes.filter((e) => e.season === s).length;
+                  return (
+                    <option key={s} value={s}>
+                      Season {s} • {count} episodes ▾
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+          )}
+
+          <button
+            type="button"
+            className="cinejoy-options-btn"
+            title="Episode Options"
+          >
+            Options
+          </button>
+        </div>
       </div>
 
       {/* ─── Responsive Episode Grid ─── */}
@@ -86,13 +91,10 @@ export function EpisodeSelector({
                   }}
                 />
 
-                {/* Top-Left Episode Pill (E1, E2, E3...) */}
-                <span className="cinejoy-ep-badge-num">
+                {/* Top-Left Episode Pill (PLAYING or E1, E2, E3...) */}
+                <span className={`cinejoy-ep-badge-num ${isCurrent ? 'is-playing-badge' : ''}`}>
                   {isCurrent ? 'PLAYING' : `E${ep.episode}`}
                 </span>
-
-                {/* Bottom-Right HD / Time Tag */}
-                <span className="cinejoy-ep-badge-time">HD</span>
 
                 {/* Hover Play Overlay */}
                 <div className="cinejoy-ep-play-overlay">

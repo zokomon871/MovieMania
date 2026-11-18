@@ -87,6 +87,8 @@ export interface IMovie {
   genres?: string[];
   type?: 'movie' | 'series';
   tmdbId?: string | number;
+  cast?: string[];
+  director?: string[];
   updated_at?: Date | string;
 }
 
@@ -124,5 +126,7 @@ export interface ITMDBMovie {
   release_date: string;
   vote_average: number;
   tmdbId?: string | number;
+  cast?: string[];
+  director?: string[];
 }
 

@@ -1,30 +1,35 @@
-export type VODServer = 'vidsrc' | 'vidlink' | 'cinesrc' | 'modiplay';
+export type VODServer = 'modiplay' | 'iqsmart' | 'vidsrc' | 'vidlink' | 'cinesrc';
+
+const IQ_KEY = 'e11a7debaaa4f5d25b671706ffe4d2acb56efbd4';
 
 export function getMovieStreamUrls(id: string | number, tmdbId?: string | number): Record<VODServer, string> {
   const vidId = tmdbId || id;
   return {
+    modiplay: `https://rozgarlelo.modiplay.xyz/embed/tmdb/movie?id=${vidId}`,
+    iqsmart: `https://streams.iqsmartgames.com/embed/movie/${id}?key=${IQ_KEY}`,
     vidsrc: `https://vidsrc.mov/embed/movie/${id}`,
     vidlink: `https://vidlink.pro/movie/${vidId}?primaryColor=ffd200`,
     cinesrc: `https://cinesrc.st/embed/movie/${id}`,
-    modiplay: `https://rozgarlelo.modiplay.xyz/embed/tmdb/movie?id=${vidId}`,
   };
 }
 
 export function getSeriesStreamUrls(id: string, season = 1, episode = 1, tmdbId?: string | number): Record<VODServer, string> {
   const vidId = tmdbId || id;
+  const tvId = tmdbId || id;
   return {
+    modiplay: `https://rozgarlelo.modiplay.xyz/embed/tmdb/tv?id=${vidId}&s=${season}&e=${episode}`,
+    iqsmart: `https://streams.iqsmartgames.com/embed/tv/${tvId}/${season}/${episode}?key=${IQ_KEY}`,
     vidsrc: `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
     vidlink: `https://vidlink.pro/tv/${vidId}/${season}/${episode}?primaryColor=ffd200`,
     cinesrc: `https://cinesrc.st/embed/tv/${id}?s=${season}&e=${episode}`,
-    modiplay: `https://rozgarlelo.modiplay.xyz/embed/tmdb/tv?id=${vidId}&s=${season}&e=${episode}`,
   };
 }
 
-export function getStreamEmbedUrl(id: string | number, server: VODServer = 'vidsrc', tmdbId?: string | number): string {
+export function getStreamEmbedUrl(id: string | number, server: VODServer = 'modiplay', tmdbId?: string | number): string {
   return getMovieStreamUrls(id, tmdbId)[server];
 }
 
-export function getSeriesStreamEmbedUrl(id: string, season = 1, episode = 1, server: VODServer = 'vidsrc', tmdbId?: string | number): string {
+export function getSeriesStreamEmbedUrl(id: string, season = 1, episode = 1, server: VODServer = 'modiplay', tmdbId?: string | number): string {
   return getSeriesStreamUrls(id, season, episode, tmdbId)[server];
 }
 
