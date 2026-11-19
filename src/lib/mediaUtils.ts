@@ -3,24 +3,34 @@ export type VODServer = 'modiplay' | 'iqsmart' | 'vidsrc' | 'vidlink' | 'cinesrc
 const IQ_KEY = 'e11a7debaaa4f5d25b671706ffe4d2acb56efbd4';
 
 export function getMovieStreamUrls(id: string | number, tmdbId?: string | number): Record<VODServer, string> {
-  const vidId = tmdbId || id;
+  const hasNumericTmdb = tmdbId && !String(tmdbId).startsWith('tt');
+  const numericId = hasNumericTmdb ? tmdbId : (!String(id).startsWith('tt') ? id : undefined);
+
   return {
-    modiplay: `https://rozgarlelo.modiplay.xyz/embed/tmdb/movie?id=${vidId}`,
+    // Modiplay strictly expects a numeric TMDB ID. If only an IMDb ID (tt...) is available,
+    // fallback gracefully to AutoEmbed 2 (iqsmart) so Modiplay does NOT default to "The Mask"!
+    modiplay: numericId
+      ? `https://rozgarlelo.modiplay.xyz/embed/tmdb/movie?id=${numericId}`
+      : `https://streams.iqsmartgames.com/embed/movie/${id}?key=${IQ_KEY}`,
     iqsmart: `https://streams.iqsmartgames.com/embed/movie/${id}?key=${IQ_KEY}`,
     vidsrc: `https://vidsrc.mov/embed/movie/${id}`,
-    vidlink: `https://vidlink.pro/movie/${vidId}?primaryColor=ffd200`,
+    vidlink: `https://vidlink.pro/movie/${numericId || id}?primaryColor=ffd200`,
     cinesrc: `https://cinesrc.st/embed/movie/${id}`,
   };
 }
 
 export function getSeriesStreamUrls(id: string, season = 1, episode = 1, tmdbId?: string | number): Record<VODServer, string> {
-  const vidId = tmdbId || id;
-  const tvId = tmdbId || id;
+  const hasNumericTmdb = tmdbId && !String(tmdbId).startsWith('tt');
+  const numericId = hasNumericTmdb ? tmdbId : (!String(id).startsWith('tt') ? id : undefined);
+  const tvId = numericId || id;
+
   return {
-    modiplay: `https://rozgarlelo.modiplay.xyz/embed/tmdb/tv?id=${vidId}&s=${season}&e=${episode}`,
+    modiplay: numericId
+      ? `https://rozgarlelo.modiplay.xyz/embed/tmdb/tv?id=${numericId}&s=${season}&e=${episode}`
+      : `https://streams.iqsmartgames.com/embed/tv/${tvId}/${season}/${episode}?key=${IQ_KEY}`,
     iqsmart: `https://streams.iqsmartgames.com/embed/tv/${tvId}/${season}/${episode}?key=${IQ_KEY}`,
     vidsrc: `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
-    vidlink: `https://vidlink.pro/tv/${vidId}/${season}/${episode}?primaryColor=ffd200`,
+    vidlink: `https://vidlink.pro/tv/${numericId || id}/${season}/${episode}?primaryColor=ffd200`,
     cinesrc: `https://cinesrc.st/embed/tv/${id}?s=${season}&e=${episode}`,
   };
 }

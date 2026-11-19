@@ -29,7 +29,13 @@ export function MovieCard({ movie, rank, onSelect }: MovieCardProps) {
 
   return (
     <div style={{ position: 'relative' }}>
-      <Link href={`/movies/${movie.id}`} onClick={handleClick} className="movie-card-item" style={{ textDecoration: 'none' }}>
+      <Link
+        href={`/movies/${movie.id}`}
+        prefetch={true}
+        onClick={handleClick}
+        className="movie-card-item"
+        style={{ textDecoration: 'none' }}
+      >
         <div className="movie-poster-box">
           <img
             src={poster}

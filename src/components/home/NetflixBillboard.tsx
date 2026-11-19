@@ -177,14 +177,15 @@ export function NetflixBillboard({ slides = DEFAULT_SLIDES, onOpenModal, onPlayC
               <span>{current.type === 'channel' ? 'Watch Live' : 'Play'}</span>
             </Link>
 
-            <button
-              type="button"
-              onClick={() => onOpenModal && onOpenModal(current)}
+            <Link
+              href={playHref}
+              prefetch={true}
               className="btn-netflix-info"
+              style={{ textDecoration: 'none' }}
             >
               <Info size={22} />
               <span>More Info</span>
-            </button>
+            </Link>
 
             <button
               type="button"

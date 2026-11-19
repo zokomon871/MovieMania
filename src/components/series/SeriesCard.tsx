@@ -28,7 +28,13 @@ export function SeriesCard({ series, rank, onSelect }: SeriesCardProps) {
 
   return (
     <div style={{ position: 'relative' }}>
-      <Link href={`/series/${series.id}`} onClick={handleClick} className="movie-card-item" style={{ textDecoration: 'none' }}>
+      <Link
+        href={`/series/${series.id}`}
+        prefetch={true}
+        onClick={handleClick}
+        className="movie-card-item"
+        style={{ textDecoration: 'none' }}
+      >
         <div className="movie-poster-box">
           <img
             src={poster}

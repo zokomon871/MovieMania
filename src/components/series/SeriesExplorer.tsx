@@ -6,7 +6,6 @@ import { ISeries } from '@/lib/types';
 import { NetflixSubNav } from '@/components/common/NetflixSubNav';
 import { NetflixRow, RowMediaItem } from '@/components/home/NetflixRow';
 import { SeriesCard } from './SeriesCard';
-import { MediaModal } from '@/components/common/MediaModal';
 import { EmptyState } from '@/components/common/EmptyState';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 
@@ -36,7 +35,6 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
   const [viewMode, setViewMode] = useState<'rows' | 'grid'>('rows');
   const [results, setResults] = useState<ISeries[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedSeries, setSelectedSeries] = useState<ISeries | null>(null);
 
   // Curated genre rows for Netflix TV Series browsing
   const [dramaSeries, setDramaSeries] = useState<ISeries[]>([]);
@@ -71,10 +69,6 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
       .catch(() => setResults([]))
       .finally(() => setIsLoading(false));
   }, [selectedGenre, sortBy, viewMode]);
-
-  const handleSelectMedia = (item: any) => {
-    setSelectedSeries(item);
-  };
 
   const toRowItems = (seriesList: ISeries[]): RowMediaItem[] =>
     seriesList.map((s) => ({
@@ -137,7 +131,7 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
               }}
             >
               {results.map((s) => (
-                <SeriesCard key={s.id} series={s} onSelect={() => setSelectedSeries(s)} />
+                <SeriesCard key={s.id} series={s} />
               ))}
             </div>
           )}
@@ -151,7 +145,6 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
               title="Trending TV Shows"
               icon={<Flame size={22} color="var(--accent)" />}
               items={toRowItems(initialTrending)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -162,7 +155,6 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
               icon={<Trophy size={22} color="#f59e0b" />}
               items={toRowItems(top10)}
               isTop10={true}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -172,7 +164,6 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
               title="Binge-Worthy TV Dramas"
               icon={<Film size={22} color="var(--accent)" />}
               items={toRowItems(dramaSeries)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -182,7 +173,6 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
               title="Action & Sci-Fi Television"
               icon={<Compass size={22} color="var(--accent)" />}
               items={toRowItems(actionSeries)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -192,7 +182,6 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
               title="Crime, Heists & Mystery Shows"
               icon={<Clapperboard size={22} color="var(--accent)" />}
               items={toRowItems(crimeSeries)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -202,7 +191,6 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
               title="Comedy Series & Sitcoms"
               icon={<Tv size={22} color="var(--accent)" />}
               items={toRowItems(comedySeries)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -212,19 +200,10 @@ export function SeriesExplorer({ initialTrending, initialPopular }: Props) {
               title="Anime & Animated Series"
               icon={<Film size={22} color="var(--accent)" />}
               items={toRowItems(animationSeries)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
         </>
       )}
-
-      {/* Netflix Quick-Preview Modal */}
-      <MediaModal
-        item={selectedSeries}
-        type="series"
-        isOpen={!!selectedSeries}
-        onClose={() => setSelectedSeries(null)}
-      />
     </div>
   );
 }

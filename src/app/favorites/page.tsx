@@ -6,7 +6,6 @@ import { Star, Play, Check, Trash2, Film, Tv, Layers, AlertCircle } from 'lucide
 import { useFavorites, IFavoriteItem } from '@/hooks/useFavorites';
 import { useOfflineChannels } from '@/hooks/useOfflineChannels';
 import { VideoPlayer } from '@/components/player/VideoPlayer';
-import { MediaModal } from '@/components/common/MediaModal';
 import { IChannel } from '@/lib/types';
 import { getImageUrl, formatRating } from '@/lib/mediaUtils';
 
@@ -15,7 +14,6 @@ export default function FavoritesPage() {
   const { offlineChannels, markOffline, markOnline } = useOfflineChannels();
   const [activeTab, setActiveTab] = useState<'all' | 'movie' | 'series' | 'channel'>('all');
   const [selectedChannel, setSelectedChannel] = useState<IChannel | null>(null);
-  const [modalItem, setModalItem] = useState<any | null>(null);
 
   const movies = favoriteItems.filter((i) => i.type === 'movie');
   const series = favoriteItems.filter((i) => i.type === 'series');
@@ -206,13 +204,6 @@ export default function FavoritesPage() {
           </div>
         )}
       </div>
-
-      <MediaModal
-        item={modalItem}
-        type={modalItem?.type || 'movie'}
-        isOpen={!!modalItem}
-        onClose={() => setModalItem(null)}
-      />
 
       <VideoPlayer
         channel={selectedChannel}

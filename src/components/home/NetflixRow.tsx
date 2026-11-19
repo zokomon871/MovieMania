@@ -97,10 +97,7 @@ export function NetflixRow({
                 onPlayChannel(item.channelData);
                 return;
               }
-              if (onSelectMedia) {
-                e.preventDefault();
-                onSelectMedia(item);
-              }
+              // Direct navigation to single detail page without modal popup
             };
 
             const targetHref =
@@ -118,6 +115,7 @@ export function NetflixRow({
                   <span className="netflix-top10-rank">{rank}</span>
                   <Link
                     href={targetHref}
+                    prefetch={true}
                     onClick={handleCardClick}
                     className="netflix-top10-card netflix-card"
                   >
@@ -159,6 +157,7 @@ export function NetflixRow({
               <div key={item.id} className="netflix-card" style={{ flexShrink: 0 }}>
                 <Link
                   href={targetHref}
+                  prefetch={true}
                   onClick={handleCardClick}
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >

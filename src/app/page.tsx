@@ -8,7 +8,6 @@ import { FilterBar } from '@/components/channels/filters/FilterBar';
 import { ChannelGrid } from '@/components/channels/ChannelGrid';
 import { Pagination } from '@/components/common/Pagination';
 import { VideoPlayer } from '@/components/player/VideoPlayer';
-import { MediaModal } from '@/components/common/MediaModal';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
 import { useOfflineChannels } from '@/hooks/useOfflineChannels';
@@ -27,7 +26,6 @@ export default function HomePage() {
   const [popularMovies, setPopularMovies] = useState<ITMDBMovie[]>([]);
   const [popularSeries, setPopularSeries] = useState<ISeries[]>([]);
   const [sportsChannels, setSportsChannels] = useState<IChannel[]>([]);
-  const [activeModalItem, setActiveModalItem] = useState<any | null>(null);
 
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [countries, setCountries] = useState<ICountry[]>([]);
@@ -49,7 +47,7 @@ export default function HomePage() {
     fetch('/api/countries').then((r) => r.json()).then((d) => setCountries(d.countries || [])).catch(() => {});
     fetch('/api/movies/trending').then((r) => r.json()).then((d) => setTrendingMovies(d.results || d.movies || [])).catch(() => {});
     fetch('/api/movies/popular').then((r) => r.json()).then((d) => setPopularMovies(d.results || d.movies || [])).catch(() => {});
-    fetch('/api/series/search?sortBy=rating&page=1').then((r) => r.json()).then((d) => setPopularSeries(d.results || d.series || [])).catch(() => {});
+    fetch('/api/series/trending').then((r) => r.json()).then((d) => setPopularSeries(d.results || d.series || [])).catch(() => {});
     fetch('/api/channels?category=sports&limit=15').then((r) => r.json()).then((d) => setSportsChannels(d.channels || [])).catch(() => {});
   }, []);
 
@@ -122,16 +120,11 @@ export default function HomePage() {
     channelData: c,
   }));
 
-  const handleOpenModal = (item: any) => {
-    setActiveModalItem(item);
-  };
-
   return (
     <main style={{ minHeight: '100vh', paddingBottom: '80px' }}>
       {/* ─── Netflix Cinematic Billboard ─── */}
       {isDefaultView && (
         <NetflixBillboard
-          onOpenModal={handleOpenModal}
           onPlayChannel={setSelectedChannel}
         />
       )}
@@ -147,7 +140,6 @@ export default function HomePage() {
                 icon={<History size={22} color="var(--accent)" />}
                 items={continueWatchingItems}
                 isContinueWatching={true}
-                onSelectMedia={handleOpenModal}
                 onRemoveHistory={removeFromHistory}
               />
             )}
@@ -159,7 +151,6 @@ export default function HomePage() {
                 icon={<Flame size={22} color="var(--accent)" />}
                 items={trendingRowItems}
                 viewAllHref="/movies"
-                onSelectMedia={handleOpenModal}
               />
             )}
 
@@ -171,7 +162,6 @@ export default function HomePage() {
                 items={top10Movies}
                 isTop10={true}
                 viewAllHref="/movies"
-                onSelectMedia={handleOpenModal}
               />
             )}
 
@@ -182,7 +172,6 @@ export default function HomePage() {
                 icon={<Layers size={22} color="var(--accent)" />}
                 items={seriesRowItems}
                 viewAllHref="/series"
-                onSelectMedia={handleOpenModal}
               />
             )}
 
@@ -194,7 +183,6 @@ export default function HomePage() {
                 items={top10Series}
                 isTop10={true}
                 viewAllHref="/series"
-                onSelectMedia={handleOpenModal}
               />
             )}
 
@@ -253,14 +241,6 @@ export default function HomePage() {
           />
         </div>
       </div>
-
-      {/* ─── Netflix Quick Preview Modal ─── */}
-      <MediaModal
-        item={activeModalItem}
-        type={activeModalItem?.type || 'movie'}
-        isOpen={!!activeModalItem}
-        onClose={() => setActiveModalItem(null)}
-      />
 
       {/* ─── Live HLS Video Player ─── */}
       <VideoPlayer

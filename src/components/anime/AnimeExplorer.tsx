@@ -7,7 +7,6 @@ import { NetflixSubNav } from '@/components/common/NetflixSubNav';
 import { NetflixRow, RowMediaItem } from '@/components/home/NetflixRow';
 import { MovieCard } from '@/components/movies/MovieCard';
 import { SeriesCard } from '@/components/series/SeriesCard';
-import { MediaModal } from '@/components/common/MediaModal';
 import { EmptyState } from '@/components/common/EmptyState';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 
@@ -24,7 +23,6 @@ export function AnimeExplorer({ initialMovies, initialSeries }: Props) {
   const [viewMode, setViewMode] = useState<'rows' | 'grid'>('rows');
   const [results, setResults] = useState<(ITMDBMovie | ISeries)[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
 
   // Additional anime shelves
   const [actionAnime, setActionAnime] = useState<ISeries[]>([]);
@@ -118,9 +116,9 @@ export function AnimeExplorer({ initialMovies, initialSeries }: Props) {
               {results.map((item: any) => {
                 const isSeries = item.seasonsCount !== undefined || item.episodes !== undefined;
                 return isSeries ? (
-                  <SeriesCard key={item.id} series={item} onSelect={() => setSelectedItem(item)} />
+                  <SeriesCard key={item.id} series={item} />
                 ) : (
-                  <MovieCard key={item.id} movie={item} onSelect={() => setSelectedItem(item)} />
+                  <MovieCard key={item.id} movie={item} />
                 );
               })}
             </div>
@@ -134,7 +132,6 @@ export function AnimeExplorer({ initialMovies, initialSeries }: Props) {
               title="Popular Anime Series"
               icon={<Flame size={22} color="var(--accent)" />}
               items={toRowItems(initialSeries)}
-              onSelectMedia={(item) => setSelectedItem(item)}
             />
           )}
 
@@ -145,7 +142,6 @@ export function AnimeExplorer({ initialMovies, initialSeries }: Props) {
               icon={<Trophy size={22} color="#f59e0b" />}
               items={toRowItems(top10)}
               isTop10={true}
-              onSelectMedia={(item) => setSelectedItem(item)}
             />
           )}
 
@@ -155,7 +151,6 @@ export function AnimeExplorer({ initialMovies, initialSeries }: Props) {
               title="Action & Shonen Anime"
               icon={<Sparkles size={22} color="var(--accent)" />}
               items={toRowItems(actionAnime)}
-              onSelectMedia={(item) => setSelectedItem(item)}
             />
           )}
 
@@ -165,7 +160,6 @@ export function AnimeExplorer({ initialMovies, initialSeries }: Props) {
               title="Top Rated Anime Films"
               icon={<Film size={22} color="var(--accent)" />}
               items={toRowItems(initialMovies)}
-              onSelectMedia={(item) => setSelectedItem(item)}
             />
           )}
 
@@ -175,18 +169,10 @@ export function AnimeExplorer({ initialMovies, initialSeries }: Props) {
               title="Fantasy & Supernatural Anime"
               icon={<Compass size={22} color="var(--accent)" />}
               items={toRowItems(fantasyAnime)}
-              onSelectMedia={(item) => setSelectedItem(item)}
             />
           )}
         </>
       )}
-
-      <MediaModal
-        item={selectedItem}
-        type={selectedItem?.seasonsCount !== undefined ? 'series' : 'movie'}
-        isOpen={!!selectedItem}
-        onClose={() => setSelectedItem(null)}
-      />
     </div>
   );
 }

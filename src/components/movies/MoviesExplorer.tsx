@@ -7,7 +7,6 @@ import { NetflixSubNav } from '@/components/common/NetflixSubNav';
 import { NetflixRow, RowMediaItem } from '@/components/home/NetflixRow';
 import { MovieCard } from './MovieCard';
 import { MovieHero } from './MovieHero';
-import { MediaModal } from '@/components/common/MediaModal';
 import { EmptyState } from '@/components/common/EmptyState';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 
@@ -39,7 +38,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
   const [viewMode, setViewMode] = useState<'rows' | 'grid'>('rows');
   const [results, setResults] = useState<ITMDBMovie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState<ITMDBMovie | null>(null);
 
   // Curated genre rows for Netflix-style browsing
   const [actionMovies, setActionMovies] = useState<ITMDBMovie[]>([]);
@@ -78,10 +76,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
       .catch(() => setResults([]))
       .finally(() => setIsLoading(false));
   }, [selectedGenre, sortBy, viewMode]);
-
-  const handleSelectMedia = (item: any) => {
-    setSelectedMovie(item);
-  };
 
   const toRowItems = (moviesList: ITMDBMovie[]): RowMediaItem[] =>
     moviesList.map((m) => ({
@@ -144,7 +138,7 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
               }}
             >
               {results.map((m) => (
-                <MovieCard key={m.id} movie={m} onSelect={() => setSelectedMovie(m)} />
+                <MovieCard key={m.id} movie={m} />
               ))}
             </div>
           )}
@@ -164,7 +158,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
               title="Trending Movies"
               icon={<Flame size={22} color="var(--accent)" />}
               items={toRowItems(initialTrending)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -175,7 +168,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
               icon={<Trophy size={22} color="#f59e0b" />}
               items={toRowItems(top10)}
               isTop10={true}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -185,7 +177,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
               title="Action & Adventure Blockbusters"
               icon={<Clapperboard size={22} color="var(--accent)" />}
               items={toRowItems(actionMovies)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -195,7 +186,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
               title="Sci-Fi & Fantasy Epics"
               icon={<Compass size={22} color="var(--accent)" />}
               items={toRowItems(scifiMovies)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -205,7 +195,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
               title="Critically Acclaimed Dramas"
               icon={<Film size={22} color="var(--accent)" />}
               items={toRowItems(dramaMovies)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -215,7 +204,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
               title="Laugh-Out-Loud Comedies"
               icon={<Film size={22} color="var(--accent)" />}
               items={toRowItems(comedyMovies)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -225,7 +213,6 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
               title="Chilling Horror & Thrillers"
               icon={<Film size={22} color="var(--accent)" />}
               items={toRowItems(horrorMovies)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
 
@@ -235,19 +222,10 @@ export function MoviesExplorer({ heroMovie, initialTrending, initialPopular }: P
               title="Animation & Family Hits"
               icon={<Film size={22} color="var(--accent)" />}
               items={toRowItems(animationMovies)}
-              onSelectMedia={handleSelectMedia}
             />
           )}
         </>
       )}
-
-      {/* Netflix Quick-Preview Modal */}
-      <MediaModal
-        item={selectedMovie}
-        type="movie"
-        isOpen={!!selectedMovie}
-        onClose={() => setSelectedMovie(null)}
-      />
     </div>
   );
 }

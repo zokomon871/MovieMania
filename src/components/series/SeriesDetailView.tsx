@@ -7,8 +7,8 @@ import { ISeries } from '@/lib/types';
 import { getImageUrl, formatRating, formatYear, FALLBACK_POSTER } from '@/lib/mediaUtils';
 import { SeriesVODPlayer } from '@/components/player/SeriesVODPlayer';
 import { EpisodeSelector } from './EpisodeSelector';
+import { CastAvatar } from '@/components/common/CastAvatar';
 import { MediaRow } from '@/components/common/MediaRow';
-import { MediaModal } from '@/components/common/MediaModal';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
 
@@ -20,7 +20,6 @@ interface SeriesDetailViewProps {
 export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { updateHistory } = useWatchHistory();
-  const [selectedRelated, setSelectedRelated] = useState<ISeries | null>(null);
   const [copied, setCopied] = useState(false);
   const [isExpandedOverview, setIsExpandedOverview] = useState(false);
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
@@ -373,20 +372,8 @@ export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProp
             <div className="cinejoy-cast-section">
               <h2 className="cinejoy-episodes-title" style={{ marginBottom: '18px' }}>Cast & Crew</h2>
               <div className="cinejoy-cast-grid">
-                {castList.map((actor, idx) => (
-                  <div key={actor} className="cinejoy-cast-card">
-                    <img
-                      src={`https://images.unsplash.com/photo-${1534528741775 + (idx % 6) * 1111}?auto=format&fit=crop&w=160&q=80`}
-                      alt={actor}
-                      className="cinejoy-cast-img"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = FALLBACK_POSTER;
-                      }}
-                    />
-                    <div className="cinejoy-cast-name" title={actor}>{actor}</div>
-                    <div className="cinejoy-cast-role">Starring</div>
-                  </div>
+                {castList.map((actor) => (
+                  <CastAvatar key={actor} name={actor} role="Starring" />
                 ))}
               </div>
             </div>
@@ -400,19 +387,11 @@ export function SeriesDetailView({ series, relatedSeries }: SeriesDetailViewProp
                 items={relatedSeries}
                 type="series"
                 viewAllHref="/series"
-                onSelectMedia={(item) => setSelectedRelated(item as ISeries)}
               />
             </div>
           )}
         </div>
       </div>
-
-      <MediaModal
-        item={selectedRelated}
-        type="series"
-        isOpen={!!selectedRelated}
-        onClose={() => setSelectedRelated(null)}
-      />
     </main>
   );
 }

@@ -7,7 +7,7 @@ import { ITMDBMovie } from '@/lib/types';
 import { getImageUrl, formatRating, formatYear, FALLBACK_POSTER } from '@/lib/mediaUtils';
 import { VODPlayer } from '@/components/player/VODPlayer';
 import { MediaRow } from '@/components/common/MediaRow';
-import { MediaModal } from '@/components/common/MediaModal';
+import { CastAvatar } from '@/components/common/CastAvatar';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
 
@@ -19,7 +19,6 @@ interface MovieDetailViewProps {
 export function MovieDetailView({ movie, relatedMovies }: MovieDetailViewProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { updateHistory } = useWatchHistory();
-  const [selectedRelated, setSelectedRelated] = useState<ITMDBMovie | null>(null);
   const [copied, setCopied] = useState(false);
 
   const id = movie.id.toString();
@@ -140,27 +139,11 @@ export function MovieDetailView({ movie, relatedMovies }: MovieDetailViewProps) 
               <div className="cinejoy-cast-section" style={{ marginTop: '24px' }}>
                 <h3 className="cinejoy-cast-heading">Cast & Crew</h3>
                 <div className="cinejoy-cast-row">
-                  {movie.cast.map((actor, idx) => (
-                    <div key={idx} className="cinejoy-cast-card">
-                      <div className="cinejoy-cast-avatar">
-                        <div className="cinejoy-cast-avatar-fallback">
-                          {actor.charAt(0)}
-                        </div>
-                      </div>
-                      <div className="cinejoy-cast-name">{actor}</div>
-                      <div className="cinejoy-cast-role">Starring</div>
-                    </div>
+                  {movie.cast.map((actor) => (
+                    <CastAvatar key={actor} name={actor} role="Starring" size={76} />
                   ))}
-                  {movie.director && movie.director.length > 0 && movie.director.map((dir, idx) => (
-                    <div key={`dir-${idx}`} className="cinejoy-cast-card">
-                      <div className="cinejoy-cast-avatar">
-                        <div className="cinejoy-cast-avatar-fallback" style={{ background: 'linear-gradient(135deg, #E50914, #8b0000)' }}>
-                          🎬
-                        </div>
-                      </div>
-                      <div className="cinejoy-cast-name">{dir}</div>
-                      <div className="cinejoy-cast-role">Director</div>
-                    </div>
+                  {movie.director && movie.director.length > 0 && movie.director.map((dir) => (
+                    <CastAvatar key={`dir-${dir}`} name={dir} role="Director" size={76} />
                   ))}
                 </div>
               </div>
@@ -175,18 +158,10 @@ export function MovieDetailView({ movie, relatedMovies }: MovieDetailViewProps) 
               icon={<Sparkles size={20} color="var(--accent)" />}
               items={relatedMovies}
               type="movie"
-              onSelectMedia={(item) => setSelectedRelated(item as ITMDBMovie)}
             />
           </div>
         )}
       </div>
-
-      <MediaModal
-        item={selectedRelated}
-        type="movie"
-        isOpen={Boolean(selectedRelated)}
-        onClose={() => setSelectedRelated(null)}
-      />
     </main>
   );
 }

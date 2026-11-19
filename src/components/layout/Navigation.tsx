@@ -99,22 +99,22 @@ export function Navigation() {
 
             {/* Nav Tabs */}
             <div className="global-nav-tabs">
-              <Link href="/" className={`global-nav-tab ${isHome ? 'active' : ''}`}>
+              <Link href="/" prefetch={true} className={`global-nav-tab ${isHome ? 'active' : ''}`}>
                 <span>Home</span>
               </Link>
-              <Link href="/movies" className={`global-nav-tab ${isMovies ? 'active' : ''}`}>
+              <Link href="/movies" prefetch={true} className={`global-nav-tab ${isMovies ? 'active' : ''}`}>
                 <span>Movies</span>
               </Link>
-              <Link href="/series" className={`global-nav-tab ${isSeries ? 'active' : ''}`}>
+              <Link href="/series" prefetch={true} className={`global-nav-tab ${isSeries ? 'active' : ''}`}>
                 <span>TV Shows</span>
               </Link>
-              <Link href="/anime" className={`global-nav-tab ${isAnime ? 'active' : ''}`}>
+              <Link href="/anime" prefetch={true} className={`global-nav-tab ${isAnime ? 'active' : ''}`}>
                 <span>Anime</span>
               </Link>
               <Link href="/#live-directory" className="global-nav-tab">
                 <span>Live TV</span>
               </Link>
-              <Link href="/favorites" className={`global-nav-tab ${isFavorites ? 'active' : ''}`}>
+              <Link href="/favorites" prefetch={true} className={`global-nav-tab ${isFavorites ? 'active' : ''}`}>
                 <span>My List</span>
                 {favorites.length > 0 && (
                   <span

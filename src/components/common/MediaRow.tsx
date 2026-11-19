@@ -101,12 +101,10 @@ export function MediaRow({
               {type === 'movie' ? (
                 <MovieCard
                   movie={item as ITMDBMovie}
-                  onSelect={onSelectMedia ? () => onSelectMedia(item) : undefined}
                 />
               ) : (
                 <SeriesCard
                   series={item as ISeries}
-                  onSelect={onSelectMedia ? () => onSelectMedia(item) : undefined}
                 />
               )}
             </div>
