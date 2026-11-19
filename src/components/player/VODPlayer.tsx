@@ -56,7 +56,6 @@ export function VODPlayer({ tmdbId, imdbId, title }: VODPlayerProps) {
           title={title}
           allowFullScreen
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-          sandbox="allow-forms allow-scripts allow-same-origin allow-presentation allow-downloads"
           onLoad={markServerLoaded}
           onError={markServerError}
         />
